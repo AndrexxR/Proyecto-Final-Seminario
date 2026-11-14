@@ -27,7 +27,20 @@ def _exige_justificacion(ticket: Ticket, nueva_prioridad: str) -> bool:
 
 
 def _normalizar_justificacion(justificacion: object) -> str | None:
-    """Limpia la justificación; devuelve None si está ausente o es solo espacios."""
+    """Limpia y valida la justificación que escribió el técnico.
+
+    Args:
+        justificacion: texto recibido en la petición; puede ser None.
+
+    Returns:
+        El texto sin espacios al inicio ni al final, o None si venía None, vacío o
+        con solo espacios.
+
+    Raises:
+        JustificacionInvalidaError: (400) si no es texto, si supera
+            LONGITUD_MAXIMA_JUSTIFICACION caracteres o si tiene saltos de línea u
+            otros caracteres de control.
+    """
     if justificacion is None:
         return None
     if not isinstance(justificacion, str):
@@ -45,7 +58,15 @@ def _normalizar_justificacion(justificacion: object) -> str | None:
 
 
 def _validar_peticion(usuario: Usuario, nueva_prioridad: str) -> None:
-    """Validaciones que no necesitan consultar el ticket."""
+    """Valida el rol del usuario y la prioridad pedida, sin consultar el ticket.
+
+    El rol se revisa primero para que un usuario sin permiso no pueda averiguar
+    nada del sistema (recibe 403 aunque el resto de la petición esté mal).
+
+    Raises:
+        PermisoDenegadoError: (403) si el rol no es exactamente ROL_SOPORTE.
+        PrioridadInvalidaError: (400) si la prioridad no está en PRIORIDADES.
+    """
     if usuario.rol != ROL_SOPORTE:
         raise PermisoDenegadoError("Solo el técnico de soporte puede cambiar la prioridad")
     if nueva_prioridad not in PRIORIDADES:
@@ -53,7 +74,20 @@ def _validar_peticion(usuario: Usuario, nueva_prioridad: str) -> None:
 
 
 def _validar_ticket(ticket: Ticket | None, ticket_id: int, nueva_prioridad: str) -> Ticket:
-    """Validaciones sobre el estado del ticket. Devuelve el ticket ya comprobado."""
+    """Valida que el ticket exista, esté abierto y no tenga ya esa prioridad.
+
+    Args:
+        ticket: el ticket que devolvió el repositorio, o None si no existe.
+        ticket_id: id pedido, solo para el mensaje de error.
+        nueva_prioridad: prioridad que se quiere poner.
+
+    Returns:
+        El mismo ticket, ya comprobado.
+
+    Raises:
+        TicketNoEncontradoError: (404) si `ticket` es None.
+        ConflictoError: (409) si el ticket está cerrado o ya tiene `nueva_prioridad`.
+    """
     if ticket is None:
         raise TicketNoEncontradoError(f"No existe el ticket {ticket_id}")
     if ticket.estado == ESTADO_CERRADO:
@@ -72,7 +106,36 @@ def cambiar_prioridad(
     *,
     ahora: datetime | None = None,
 ) -> RegistroAuditoria:
-    """Cambia la prioridad vigente de un ticket y deja registro de auditoría."""
+    """Cambia la prioridad vigente de un ticket y deja registro de auditoría (HU-03).
+
+    Hace todas las validaciones antes de guardar, así que un error nunca deja
+    cambios parciales. Nunca modifica `prioridad_sugerida`.
+
+    Args:
+        repositorio: objeto con `obtener_ticket(ticket_id)` y
+            `guardar_cambio_prioridad(ticket_id, prioridad, registro)`, por ejemplo
+            RepositorioEnMemoria.
+        ticket_id: id del ticket que se cambia.
+        nueva_prioridad: "Baja", "Media" o "Alta" (distingue mayúsculas).
+        usuario: quien hace el cambio; debe tener rol "soporte".
+        justificacion: obligatoria si `nueva_prioridad` es distinta de la sugerida por
+            la IA o si aún no hay sugerencia. Se guarda sin espacios en los extremos.
+        ahora: solo por nombre y con zona horaria; existe para las pruebas. Si es
+            None se usa la hora actual en UTC. La API no debe tomarlo de la petición.
+
+    Returns:
+        El RegistroAuditoria creado y guardado.
+
+    Raises:
+        ValueError: si `ahora` no tiene zona horaria.
+        PermisoDenegadoError: (403) si el usuario no es técnico de soporte.
+        PrioridadInvalidaError: (400) si la prioridad no está en la lista.
+        TicketNoEncontradoError: (404) si el ticket no existe.
+        ConflictoError: (409) si el ticket está cerrado o ya tiene esa prioridad.
+        JustificacionInvalidaError: (400) si la justificación no es texto, es
+            demasiado larga o tiene caracteres de control.
+        JustificacionRequeridaError: (400) si falta la justificación exigida.
+    """
     if ahora is not None and ahora.utcoffset() is None:
         raise ValueError("`ahora` debe tener zona horaria (por ejemplo, timezone.utc)")
     _validar_peticion(usuario, nueva_prioridad)

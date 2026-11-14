@@ -1,4 +1,4 @@
-"""Modelos y errores del dominio de incidencias (solo lo necesario para HU-03)."""
+"""Modelos, constantes y errores del dominio de incidencias (lo necesario para HU-03)."""
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -16,12 +16,20 @@ LONGITUD_MAXIMA_JUSTIFICACION = 500
 
 @dataclass
 class Usuario:
+    """Usuario autenticado que hace la petición. `rol` decide qué puede hacer."""
+
     usuario_id: int
     rol: str  # "operativo" | "soporte" | "líder"
 
 
 @dataclass
 class Ticket:
+    """Incidencia reportada. Guarda la prioridad sugerida por la IA y la vigente.
+
+    Raises:
+        ValueError: al crearlo, si el estado o una prioridad no son válidos.
+    """
+
     ticket_id: int
     estado: str
     prioridad_sugerida: str | None  # resultado de la IA; None si el análisis está pendiente
@@ -46,6 +54,8 @@ class Ticket:
 
 @dataclass(frozen=True)
 class RegistroAuditoria:
+    """Registro inmutable de un cambio de prioridad (entidad HistorialPrioridad del diseño)."""
+
     ticket_id: int
     usuario_id: int
     prioridad_anterior: str | None
@@ -62,10 +72,14 @@ class ErrorDePrioridad(Exception):
 
 
 class PrioridadInvalidaError(ErrorDePrioridad):
+    """La prioridad pedida no está en PRIORIDADES."""
+
     codigo_http = 400
 
 
 class JustificacionRequeridaError(ErrorDePrioridad):
+    """Falta la justificación y la regla de HU-03 la exige."""
+
     codigo_http = 400
 
 
@@ -76,12 +90,18 @@ class JustificacionInvalidaError(ErrorDePrioridad):
 
 
 class PermisoDenegadoError(ErrorDePrioridad):
+    """El usuario no tiene el rol que pide la operación."""
+
     codigo_http = 403
 
 
 class TicketNoEncontradoError(ErrorDePrioridad):
+    """No existe un ticket con ese id."""
+
     codigo_http = 404
 
 
 class ConflictoError(ErrorDePrioridad):
+    """El ticket está cerrado o ya tiene la prioridad pedida."""
+
     codigo_http = 409

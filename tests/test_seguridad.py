@@ -1,8 +1,17 @@
 """Pruebas nuevas de la semana 6: una por hallazgo corregido y pruebas de abuso."""
 import unittest
+from datetime import datetime, timezone
 
-from incidencias.modelos import Ticket
+from incidencias.modelos import JustificacionInvalidaError, Ticket, Usuario
+from incidencias.prioridad import cambiar_prioridad
 from incidencias.repositorio import RepositorioEnMemoria
+
+TECNICO = Usuario(usuario_id=7, rol="soporte")
+AHORA = datetime(2026, 11, 14, 9, 0, tzinfo=timezone.utc)
+
+
+def crear_repo():
+    return RepositorioEnMemoria([Ticket(1, "abierto", "Media", "Media")])
 
 
 class EstadoDelTicket(unittest.TestCase):
@@ -36,6 +45,23 @@ class CopiasDelRepositorio(unittest.TestCase):
         repo = RepositorioEnMemoria([original])
         original.estado = "cerrado"
         self.assertEqual(repo.obtener_ticket(1).estado, "abierto")
+
+
+class ValidacionDeLaJustificacion(unittest.TestCase):
+    """H-03 a H-05: la justificación se valida antes de guardar nada."""
+
+    def assert_rechazada_sin_cambios(self, justificacion):
+        repo = crear_repo()
+        with self.assertRaises(JustificacionInvalidaError) as contexto:
+            cambiar_prioridad(repo, 1, "Alta", TECNICO, justificacion, ahora=AHORA)
+        self.assertEqual(contexto.exception.codigo_http, 400)
+        self.assertEqual(repo.obtener_ticket(1).prioridad_actual, "Media")
+        self.assertEqual(repo.auditoria, [])
+
+    def test_justificacion_que_no_es_texto_da_error_400(self):
+        for valor in (12345, ["Afecta caja"], {"motivo": "x"}):
+            with self.subTest(valor=valor):
+                self.assert_rechazada_sin_cambios(valor)
 
 
 if __name__ == "__main__":

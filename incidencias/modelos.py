@@ -67,6 +67,12 @@ class JustificacionRequeridaError(ErrorDePrioridad):
     codigo_http = 400
 
 
+class JustificacionInvalidaError(ErrorDePrioridad):
+    """La justificación no es texto, es demasiado larga o tiene caracteres de control."""
+
+    codigo_http = 400
+
+
 class PermisoDenegadoError(ErrorDePrioridad):
     codigo_http = 403
 

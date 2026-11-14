@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from .modelos import (
     ConflictoError,
     ESTADO_CERRADO,
+    JustificacionInvalidaError,
     JustificacionRequeridaError,
     PermisoDenegadoError,
     PrioridadInvalidaError,
@@ -22,6 +23,15 @@ def _exige_justificacion(ticket: Ticket, nueva_prioridad: str) -> bool:
     Si el análisis está pendiente, `prioridad_sugerida` es None y siempre se exige.
     """
     return nueva_prioridad != ticket.prioridad_sugerida
+
+
+def _normalizar_justificacion(justificacion: object) -> str | None:
+    """Limpia la justificación; devuelve None si está ausente o es solo espacios."""
+    if justificacion is None:
+        return None
+    if not isinstance(justificacion, str):
+        raise JustificacionInvalidaError("La justificación debe ser texto")
+    return justificacion.strip() or None
 
 
 def _validar_peticion(usuario: Usuario, nueva_prioridad: str) -> None:
@@ -55,7 +65,7 @@ def cambiar_prioridad(
     _validar_peticion(usuario, nueva_prioridad)
     ticket = _validar_ticket(repositorio.obtener_ticket(ticket_id), ticket_id, nueva_prioridad)
 
-    justificacion_limpia = (justificacion or "").strip()
+    justificacion_limpia = _normalizar_justificacion(justificacion)
     if _exige_justificacion(ticket, nueva_prioridad) and not justificacion_limpia:
         raise JustificacionRequeridaError(
             "Se necesita justificación para apartarse de la sugerencia de la IA"
@@ -67,7 +77,7 @@ def cambiar_prioridad(
         prioridad_anterior=ticket.prioridad_actual,
         prioridad_sugerida=ticket.prioridad_sugerida,
         prioridad_final=nueva_prioridad,
-        justificacion=justificacion_limpia or None,
+        justificacion=justificacion_limpia,
         fecha_cambio=ahora or datetime.now(timezone.utc),
     )
     repositorio.guardar_cambio_prioridad(ticket_id, nueva_prioridad, registro)

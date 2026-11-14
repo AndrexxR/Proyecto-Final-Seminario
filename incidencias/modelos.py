@@ -6,7 +6,10 @@ from datetime import datetime
 # el documento S4 no lista los niveles de prioridad ni los estados.
 PRIORIDADES = ("Baja", "Media", "Alta")
 ROL_SOPORTE = "soporte"
+ESTADO_ABIERTO = "abierto"
+ESTADO_PENDIENTE_CLASIFICACION = "pendiente_clasificacion"
 ESTADO_CERRADO = "cerrado"
+ESTADOS = (ESTADO_ABIERTO, ESTADO_PENDIENTE_CLASIFICACION, ESTADO_CERRADO)
 
 
 @dataclass
@@ -21,6 +24,22 @@ class Ticket:
     estado: str
     prioridad_sugerida: str | None  # resultado de la IA; None si el análisis está pendiente
     prioridad_actual: str | None  # valor vigente
+
+    def __post_init__(self) -> None:
+        """Rechaza estados y prioridades fuera de las listas.
+
+        Sin esta validación, un estado como "Cerrado" o " cerrado" no se reconocía
+        como cerrado y el ticket aceptaba cambios (hallazgo H-01).
+
+        Raises:
+            ValueError: si `estado` no está en ESTADOS, o si una prioridad no es None
+                ni está en PRIORIDADES.
+        """
+        if self.estado not in ESTADOS:
+            raise ValueError(f"Estado de ticket inválido: {self.estado!r}")
+        for prioridad in (self.prioridad_sugerida, self.prioridad_actual):
+            if prioridad is not None and prioridad not in PRIORIDADES:
+                raise ValueError(f"Prioridad de ticket inválida: {prioridad!r}")
 
 
 @dataclass(frozen=True)

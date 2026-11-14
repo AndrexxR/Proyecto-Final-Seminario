@@ -89,5 +89,25 @@ class ValidacionDeLaJustificacion(unittest.TestCase):
         self.assertEqual(registro.justificacion, texto)
 
 
+class FechaDeLaAuditoria(unittest.TestCase):
+    """H-06: la fecha de la auditoría no se puede pasar por posición ni sin zona horaria."""
+
+    def test_ahora_no_se_acepta_por_posicion(self):
+        with self.assertRaises(TypeError):
+            cambiar_prioridad(crear_repo(), 1, "Alta", TECNICO, "Motivo", AHORA)
+
+    def test_ahora_sin_zona_horaria_se_rechaza_sin_cambios(self):
+        repo = crear_repo()
+        with self.assertRaises(ValueError):
+            cambiar_prioridad(repo, 1, "Alta", TECNICO, "Motivo", ahora=datetime(1999, 1, 1))
+        self.assertEqual(repo.auditoria, [])
+
+    def test_sin_ahora_se_usa_la_hora_actual_en_utc(self):
+        antes = datetime.now(timezone.utc)
+        registro = cambiar_prioridad(crear_repo(), 1, "Alta", TECNICO, "Motivo")
+        self.assertLessEqual(antes, registro.fecha_cambio)
+        self.assertEqual(registro.fecha_cambio.utcoffset().total_seconds(), 0)
+
+
 if __name__ == "__main__":
     unittest.main()

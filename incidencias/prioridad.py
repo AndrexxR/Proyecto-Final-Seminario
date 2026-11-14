@@ -69,9 +69,12 @@ def cambiar_prioridad(
     nueva_prioridad: str,
     usuario: Usuario,
     justificacion: str | None = None,
+    *,
     ahora: datetime | None = None,
 ) -> RegistroAuditoria:
     """Cambia la prioridad vigente de un ticket y deja registro de auditoría."""
+    if ahora is not None and ahora.utcoffset() is None:
+        raise ValueError("`ahora` debe tener zona horaria (por ejemplo, timezone.utc)")
     _validar_peticion(usuario, nueva_prioridad)
     ticket = _validar_ticket(repositorio.obtener_ticket(ticket_id), ticket_id, nueva_prioridad)
 

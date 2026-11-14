@@ -8,7 +8,7 @@ Commit revisado: `0a04fa6` (antes de las correcciones)
 ## 1. Herramientas y criterios
 
 - **Linter:** ruff 0.16.9 con las reglas E, F, B y S. Configuración en `pyproject.toml` (`line-length = 100`, S101 permitido solo en `tests/`). Antes: 10 avisos E501. Ahora: `All checks passed!`.
-- **Auditoría de dependencias:** pip-audit 2.10.1 sobre `requirements-dev.txt`. Resultado: sin vulnerabilidades (`No known vulnerabilities found`).
+- **Auditoría de dependencias:** pip-audit 2.10.1 sobre el entorno virtual con las herramientas de desarrollo. Resultado: sin vulnerabilidades (`No known vulnerabilities found`).
 - **Lista de revisión:** la de la semana 6 (corrección y pruebas, diseño y legibilidad, seguridad).
 - **Revisión con IA:** Claude (Claude Code) con el prompt de revisión de la semana (ver sección 3 y `docs/revision_ia.md`).
 
@@ -20,7 +20,7 @@ Commit revisado: `0a04fa6` (antes de las correcciones)
 | Secretos (código, historial, .gitignore, .env.example) | Sí | `git log --all -p` no muestra claves ni contraseñas. `.env` ya estaba en `.gitignore` (comprobado con `git check-ignore`). Faltaba `.env.example`: H-07 |
 | Contraseñas (scrypt, bcrypt o argon2 con sal) | No: el sistema no guarda contraseñas; `Usuario` llega ya autenticado y solo tiene id y rol | Sin hallazgos. Cuando haya login: argon2 o bcrypt (P-03) |
 | Control de acceso (rol verificado y prueba de abuso) | Sí: solo el rol `soporte` cambia la prioridad | El rol se verifica primero (403 antes que 404). La prueba de abuso solo cubría `operativo`: H-08. El repositorio permitía cambiar la prioridad sin auditoría: H-02 |
-| Dependencias (existen, necesarias, versión fijada, pip-audit) | Sí, solo de desarrollo: el código usa la biblioteca estándar | ruff, pytest y pip-audit existen en PyPI, cada una tiene un uso y están fijadas con `==` en `requirements-dev.txt`. pip-audit: sin vulnerabilidades |
+| Dependencias (existen, necesarias, versión fijada, pip-audit) | Sí, solo de desarrollo: el código usa la biblioteca estándar | ruff, pytest y pip-audit existen en PyPI, cada una tiene un uso y están fijadas con `==` en `pyproject.toml` (`[project.optional-dependencies] dev`). pip-audit: sin vulnerabilidades |
 
 ## 2. Tabla de hallazgos
 

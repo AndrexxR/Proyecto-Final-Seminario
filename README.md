@@ -105,7 +105,8 @@ Nunca modifica `prioridad_sugerida`.
 - Python 3.10 o superior (probado con 3.13).
 - Git.
 - El código usa solo la biblioteca estándar. Para el linter, las pruebas con pytest y la auditoría
-  de dependencias se usan las herramientas de `requirements-dev.txt` (versiones fijadas).
+  de dependencias se usan ruff, pytest y pip-audit, con versión fijada en `pyproject.toml`
+  (`[project.optional-dependencies] dev`).
 
 ## 3. Instalación
 
@@ -124,7 +125,7 @@ python -m venv .venv
 Activa el entorno: `source .venv/bin/activate` en Linux o macOS, `.venv\Scripts\activate` en Windows.
 
 ```bash
-pip install -r requirements-dev.txt
+pip install ruff==0.16.9 pytest==9.2.0 pip-audit==2.10.1
 ```
 
 Si vas a configurar la base de datos o el servicio de IA (próximas semanas), copia `.env.example`
@@ -166,14 +167,15 @@ Sin instalar nada, también corren con la biblioteca estándar:
 python -m unittest
 ```
 
-Linter (reglas E, F, B y S, configuradas en `pyproject.toml`) y auditoría de dependencias:
+Linter (reglas E, F, B y S, configuradas en `pyproject.toml`) y auditoría de las dependencias
+instaladas en el entorno virtual:
 
 ```bash
 ruff check .
 ```
 
 ```bash
-pip-audit -r requirements-dev.txt
+pip-audit
 ```
 
 ## 6. Estructura
@@ -188,8 +190,7 @@ tests/test_seguridad.py      Pruebas de los hallazgos corregidos y de abuso (sem
 docs/revision_ia.md          Prompt y respuesta de la revisión con IA, con su verificación
 revision_seguridad.md        Informe de revisión de código y seguridad (semana 6)
 bitacora_ia.md               Bitácora de uso de IA
-pyproject.toml               Metadatos del proyecto y configuración de ruff y pytest
-requirements-dev.txt         Herramientas de desarrollo con versión fijada
+pyproject.toml               Metadatos, dependencias de desarrollo fijadas y configuración de ruff y pytest
 .env.example                 Variables de entorno de ejemplo (sin valores reales)
 ```
 
@@ -206,4 +207,4 @@ en el informe de seguridad.
 ## 8. Autor y licencia
 
 - **Autor:** Carlos Andrés Rueda. Seminario, proyecto final, 2026.
-- **Licencia:** MIT. Ver [`LICENSE`](LICENSE).
+- **Licencia:** MIT.

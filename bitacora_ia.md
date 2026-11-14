@@ -103,7 +103,7 @@ Asistente usado: Claude. Semana 5: modo chat. Semana 6: Claude Code como agente 
 - **Prompt o sugerencia:** El linter dio 10 avisos E501 (líneas de más de 88 caracteres). Opción 1: partir todas las líneas, incluidas las de las pruebas. Opción 2: subir el límite a 100 en `pyproject.toml`.
 - **Decisión:** Aceptada con cambios
 - **Por qué:** Elegí 100 porque los nombres en español son largos y partir líneas legibles no mejora el código. La única línea que pasaba de 100 (helper `crear_repo` de las pruebas) la partí, sin cambiar su lógica. Lo justifiqué en el informe.
-- **Verificación:** `ruff check .` dice `All checks passed!` y `pip-audit -r requirements-dev.txt` no encuentra vulnerabilidades.
+- **Verificación:** `ruff check .` dice `All checks passed!` y `pip-audit` no encuentra vulnerabilidades. Las versiones de las herramientas quedaron fijadas en `pyproject.toml`.
 - **Commit relacionado:** «Configura ruff (E,F,B,S) en pyproject.toml y fija dependencias de desarrollo» (`c8dfb2f`)
 
 ## Resumen

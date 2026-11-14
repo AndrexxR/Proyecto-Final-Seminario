@@ -38,8 +38,7 @@ class Ticket:
     def __post_init__(self) -> None:
         """Rechaza estados y prioridades fuera de las listas.
 
-        Sin esta validación, un estado como "Cerrado" o " cerrado" no se reconocía
-        como cerrado y el ticket aceptaba cambios (hallazgo H-01).
+        Así un estado como "Cerrado" o " cerrado" no pasa como si fuera un ticket abierto.
 
         Raises:
             ValueError: si `estado` no está en ESTADOS, o si una prioridad no es None

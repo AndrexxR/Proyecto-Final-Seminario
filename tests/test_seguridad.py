@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from incidencias.modelos import (
     LONGITUD_MAXIMA_JUSTIFICACION,
     JustificacionInvalidaError,
+    PermisoDenegadoError,
     Ticket,
     Usuario,
 )
@@ -107,6 +108,25 @@ class FechaDeLaAuditoria(unittest.TestCase):
         registro = cambiar_prioridad(crear_repo(), 1, "Alta", TECNICO, "Motivo")
         self.assertLessEqual(antes, registro.fecha_cambio)
         self.assertEqual(registro.fecha_cambio.utcoffset().total_seconds(), 0)
+
+
+class AbusoDeControlDeAcceso(unittest.TestCase):
+    """H-08: ningún rol distinto de "soporte" exacto puede cambiar la prioridad."""
+
+    def test_roles_sin_permiso_o_parecidos_a_soporte_reciben_403_sin_cambios(self):
+        for rol in ("líder", "operativo", "Soporte", " soporte", "soporte ", "SOPORTE", "", None):
+            with self.subTest(rol=rol):
+                repo = crear_repo()
+                with self.assertRaises(PermisoDenegadoError) as contexto:
+                    cambiar_prioridad(repo, 1, "Alta", Usuario(9, rol), "Motivo", ahora=AHORA)
+                self.assertEqual(contexto.exception.codigo_http, 403)
+                self.assertEqual(repo.obtener_ticket(1).prioridad_actual, "Media")
+                self.assertEqual(repo.auditoria, [])
+
+    def test_permiso_se_revisa_antes_que_la_existencia_del_ticket(self):
+        # Un usuario sin permiso no debe poder averiguar qué tickets existen (403, no 404).
+        with self.assertRaises(PermisoDenegadoError):
+            cambiar_prioridad(crear_repo(), 999, "Alta", Usuario(9, "operativo"), "x", ahora=AHORA)
 
 
 if __name__ == "__main__":

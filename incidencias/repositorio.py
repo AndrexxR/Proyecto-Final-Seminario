@@ -9,7 +9,7 @@ class RepositorioEnMemoria:
 
     Guarda y entrega copias de los tickets, así que nadie puede cambiar la prioridad
     modificando el objeto que recibió: el único camino es guardar_cambio_prioridad,
-    que siempre deja auditoría (hallazgo H-02).
+    que siempre deja auditoría.
     """
 
     def __init__(self, tickets: list[Ticket] | tuple[Ticket, ...] = ()):

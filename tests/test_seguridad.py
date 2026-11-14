@@ -1,4 +1,4 @@
-"""Pruebas nuevas de la semana 6: una por hallazgo corregido y pruebas de abuso."""
+"""Pruebas de validación de entradas y de abuso de control de acceso."""
 import unittest
 from datetime import datetime, timezone
 
@@ -21,7 +21,7 @@ def crear_repo():
 
 
 class EstadoDelTicket(unittest.TestCase):
-    """H-01: el estado debe estar en la lista (evita saltarse el bloqueo de cerrado)."""
+    """El estado y las prioridades del ticket deben estar en la lista."""
 
     def test_estado_con_otra_capitalizacion_o_espacios_se_rechaza(self):
         for estado in ("Cerrado", " cerrado", "CERRADO", "", "borrado"):
@@ -37,7 +37,7 @@ class EstadoDelTicket(unittest.TestCase):
 
 
 class CopiasDelRepositorio(unittest.TestCase):
-    """H-02 (abuso): cambiar el objeto recibido no debe saltarse la auditoría."""
+    """Cambiar el ticket recibido no debe cambiar el repositorio."""
 
     def test_modificar_el_ticket_obtenido_no_cambia_el_repositorio(self):
         repo = RepositorioEnMemoria([Ticket(1, "abierto", "Media", "Media")])
@@ -54,7 +54,7 @@ class CopiasDelRepositorio(unittest.TestCase):
 
 
 class ValidacionDeLaJustificacion(unittest.TestCase):
-    """H-03 a H-05: la justificación se valida antes de guardar nada."""
+    """La justificación se valida antes de guardar nada."""
 
     def assert_rechazada_sin_cambios(self, justificacion):
         repo = crear_repo()
@@ -91,7 +91,7 @@ class ValidacionDeLaJustificacion(unittest.TestCase):
 
 
 class FechaDeLaAuditoria(unittest.TestCase):
-    """H-06: la fecha de la auditoría no se puede pasar por posición ni sin zona horaria."""
+    """La fecha del cambio va solo por nombre y con zona horaria."""
 
     def test_ahora_no_se_acepta_por_posicion(self):
         with self.assertRaises(TypeError):
@@ -111,7 +111,7 @@ class FechaDeLaAuditoria(unittest.TestCase):
 
 
 class AbusoDeControlDeAcceso(unittest.TestCase):
-    """H-08: ningún rol distinto de "soporte" exacto puede cambiar la prioridad."""
+    """Solo el rol "soporte", escrito exacto, puede cambiar la prioridad."""
 
     def test_roles_sin_permiso_o_parecidos_a_soporte_reciben_403_sin_cambios(self):
         for rol in ("líder", "operativo", "Soporte", " soporte", "soporte ", "SOPORTE", "", None):

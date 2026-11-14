@@ -77,6 +77,17 @@ class ValidacionDeLaJustificacion(unittest.TestCase):
         registro = cambiar_prioridad(repo, 1, "Alta", TECNICO, texto, ahora=AHORA)
         self.assertEqual(registro.justificacion, texto)
 
+    def test_justificacion_con_saltos_de_linea_o_control_se_rechaza(self):
+        for texto in ("ok\n2026-01-01 ADMIN borró auditoría", "a\rb", "a\x00b", "a\x1b[2Jb"):
+            with self.subTest(texto=texto):
+                self.assert_rechazada_sin_cambios(texto)
+
+    def test_justificacion_con_tildes_y_signos_se_acepta(self):
+        repo = crear_repo()
+        texto = "Afecta el cierre de caja: ¿urgente? Sí, 100 %"
+        registro = cambiar_prioridad(repo, 1, "Alta", TECNICO, texto, ahora=AHORA)
+        self.assertEqual(registro.justificacion, texto)
+
 
 if __name__ == "__main__":
     unittest.main()

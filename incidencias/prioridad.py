@@ -37,6 +37,10 @@ def _normalizar_justificacion(justificacion: object) -> str | None:
         raise JustificacionInvalidaError(
             f"La justificación supera {LONGITUD_MAXIMA_JUSTIFICACION} caracteres"
         )
+    if any(not caracter.isprintable() for caracter in limpia):
+        raise JustificacionInvalidaError(
+            "La justificación no puede tener saltos de línea ni caracteres de control"
+        )
     return limpia or None
 
 

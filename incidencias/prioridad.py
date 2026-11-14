@@ -6,6 +6,7 @@ from .modelos import (
     ESTADO_CERRADO,
     JustificacionInvalidaError,
     JustificacionRequeridaError,
+    LONGITUD_MAXIMA_JUSTIFICACION,
     PermisoDenegadoError,
     PrioridadInvalidaError,
     PRIORIDADES,
@@ -31,7 +32,12 @@ def _normalizar_justificacion(justificacion: object) -> str | None:
         return None
     if not isinstance(justificacion, str):
         raise JustificacionInvalidaError("La justificación debe ser texto")
-    return justificacion.strip() or None
+    limpia = justificacion.strip()
+    if len(limpia) > LONGITUD_MAXIMA_JUSTIFICACION:
+        raise JustificacionInvalidaError(
+            f"La justificación supera {LONGITUD_MAXIMA_JUSTIFICACION} caracteres"
+        )
+    return limpia or None
 
 
 def _validar_peticion(usuario: Usuario, nueva_prioridad: str) -> None:

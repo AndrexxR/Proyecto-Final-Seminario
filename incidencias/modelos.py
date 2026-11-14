@@ -10,6 +10,8 @@ ESTADO_ABIERTO = "abierto"
 ESTADO_PENDIENTE_CLASIFICACION = "pendiente_clasificacion"
 ESTADO_CERRADO = "cerrado"
 ESTADOS = (ESTADO_ABIERTO, ESTADO_PENDIENTE_CLASIFICACION, ESTADO_CERRADO)
+# Límite de la justificación guardada en la auditoría (supuesto; el diseño S4 no lo fija).
+LONGITUD_MAXIMA_JUSTIFICACION = 500
 
 
 @dataclass

@@ -2,7 +2,12 @@
 import unittest
 from datetime import datetime, timezone
 
-from incidencias.modelos import JustificacionInvalidaError, Ticket, Usuario
+from incidencias.modelos import (
+    LONGITUD_MAXIMA_JUSTIFICACION,
+    JustificacionInvalidaError,
+    Ticket,
+    Usuario,
+)
 from incidencias.prioridad import cambiar_prioridad
 from incidencias.repositorio import RepositorioEnMemoria
 
@@ -62,6 +67,15 @@ class ValidacionDeLaJustificacion(unittest.TestCase):
         for valor in (12345, ["Afecta caja"], {"motivo": "x"}):
             with self.subTest(valor=valor):
                 self.assert_rechazada_sin_cambios(valor)
+
+    def test_justificacion_mas_larga_que_el_limite_se_rechaza(self):
+        self.assert_rechazada_sin_cambios("x" * (LONGITUD_MAXIMA_JUSTIFICACION + 1))
+
+    def test_justificacion_justo_en_el_limite_se_acepta(self):
+        repo = crear_repo()
+        texto = "x" * LONGITUD_MAXIMA_JUSTIFICACION
+        registro = cambiar_prioridad(repo, 1, "Alta", TECNICO, texto, ahora=AHORA)
+        self.assertEqual(registro.justificacion, texto)
 
 
 if __name__ == "__main__":

@@ -21,7 +21,9 @@ MOTIVO = "Afecta el cierre de caja"
 
 
 def crear_repo(estado="abierto", sugerida="Media", actual="Media"):
-    ticket = Ticket(ticket_id=1, estado=estado, prioridad_sugerida=sugerida, prioridad_actual=actual)
+    ticket = Ticket(
+        ticket_id=1, estado=estado, prioridad_sugerida=sugerida, prioridad_actual=actual
+    )
     return RepositorioEnMemoria([ticket])
 
 

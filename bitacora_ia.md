@@ -3,7 +3,7 @@
 Proyecto: Sistema web de inventarios con clasificación y priorización de incidencias mediante IA
 Estudiante: Carlos Andrés Rueda
 Funcionalidad: HU-03 Ajuste manual de prioridad por el técnico, con justificación cuando corresponda
-Asistente usado: Claude, en modo chat (no agente ni autocompletado en el IDE)
+Asistente usado: Claude. Semana 5: modo chat. Semana 6: Claude Code como agente de código, en la rama `claude/wonderful-cerf-d5iioc`
 
 ## Entradas
 
@@ -61,17 +61,64 @@ Asistente usado: Claude, en modo chat (no agente ni autocompletado en el IDE)
 - **Verificación:** `git diff 1bacf77 HEAD -- tests` no muestra cambios (no toqué las pruebas) y `python -m unittest` sigue en `OK` con las 14 pruebas. El orden de las validaciones se mantuvo igual.
 - **Commit relacionado:** «Refactor HU-03: extrae _validar_peticion, _validar_ticket y _exige_justificacion; sin cambiar comportamiento ni pruebas»
 
+### Entrada 7 (semana 6)
+
+- **Fecha:** 2026-11-14
+- **Prompt o sugerencia:** Segunda revisión con IA usando el prompt de la semana (criterios, tabla con línea y severidad, problemas seguros separados de sospechas) sobre `modelos.py`, `prioridad.py` y `repositorio.py`. El prompt y la respuesta completos están en `docs/revision_ia.md`.
+- **Decisión:** Aceptada con cambios
+- **Por qué:** La IA devolvió 10 hallazgos: 5 «seguros» y 5 «sospechas». No los copié al informe sin más: la clasificación como real o falso positivo depende de lo que pasa en mi código.
+- **Verificación:** Escribí un script que reproduce cada hallazgo contra el commit `0a04fa6` (salida en `docs/revision_ia.md`). Resultado: 6 reales (IA-01, 02, 03, 04, 09, 10), 3 falsos positivos (IA-05, 06, 08) y 1 real que pasa a pendientes (IA-07, carrera, porque no hay BD).
+- **Commit relacionado:** «Agrega la revisión con IA (prompt, hallazgos y verificación) en docs/revision_ia.md» (`c1c772b`)
+
+### Entrada 8 (semana 6)
+
+- **Fecha:** 2026-11-14
+- **Prompt o sugerencia:** Tres hallazgos de la IA que rechacé como falsos positivos: IA-05 (`usuario=None`), IA-06 (XSS por mostrar la prioridad en el mensaje de error) e IA-08 (`KeyError` en `guardar_cambio_prioridad`).
+- **Decisión:** Rechazada
+- **Por qué:** IA-05: ningún camino pasa `None` y el contrato exige un `Usuario` autenticado; lo dejé como requisito de la futura API (P-04). IA-06: el valor se muestra con `repr`, la API responde JSON y solo refleja lo que el mismo cliente envió. IA-08: `cambiar_prioridad` valida la existencia antes de guardar; no hay otro camino.
+- **Verificación:** Ejecuté los tres casos: IA-06 sí devuelve un error de dominio 400 controlado. IA-05 e IA-08 lanzan excepción solo si se llama la función de forma distinta a la del contrato. Lo dejé documentado en el docstring de `guardar_cambio_prioridad`.
+- **Commit relacionado:** «Agrega revision_seguridad.md…» (sección 3)
+
+### Entrada 9 (semana 6)
+
+- **Fecha:** 2026-11-14
+- **Prompt o sugerencia:** Corrección de H-01 (IA-10): la IA propuso una lista de estados válidos y validarla al crear el `Ticket`. Consideré también normalizar el estado con `.strip().lower()`.
+- **Decisión:** Aceptada con cambios
+- **Por qué:** Normalizar escondería datos corruptos en la BD; prefiero rechazarlos con `ValueError`. Además aproveché para quitar los valores mágicos (`ESTADO_ABIERTO`, `ESTADO_PENDIENTE_CLASIFICACION`, `ESTADOS`) y validar también las prioridades guardadas.
+- **Verificación:** Prueba nueva con `"Cerrado"`, `" cerrado"`, `"CERRADO"`, `""` y `"borrado"`. Las 14 pruebas de la semana 5 siguen pasando sin cambios en su lógica: `git diff 0a04fa6 -- tests/test_prioridad.py` solo muestra una línea partida por el linter.
+- **Commit relacionado:** «Corrige H-01: Ticket valida estado y prioridades contra listas cerradas» (`fe40129`)
+
+### Entrada 10 (semana 6)
+
+- **Fecha:** 2026-11-14
+- **Prompt o sugerencia:** Usé Claude Code como agente con una instrucción delimitada: «trabaja en la rama `claude/wonderful-cerf-d5iioc`; configura ruff con E, F, B y S; corrige los hallazgos reales uno por commit, cada uno con una prueba nueva; no modifiques las pruebas existentes para que pasen; escribe docstrings, README e informe».
+- **Decisión:** Aceptada
+- **Por qué:** Son tareas de varios pasos, pero cada una es pequeña y verificable con pruebas y con el linter. La rama propia me deja revisar el diff antes de integrar.
+- **Verificación:** El agente ejecutó `ruff check .` y `python -m pytest` después de cada commit (28 pruebas OK al final) y probó los comandos del README en una carpeta limpia con un venv nuevo. Yo reviso el diff completo de la rama con `git diff 0a04fa6..claude/wonderful-cerf-d5iioc` y cada commit con `git show <hash>` antes de integrarla a `main`.
+- **Commit relacionado:** de `c8dfb2f` a `d0c7a19` en la rama `claude/wonderful-cerf-d5iioc`
+
+### Entrada 11 (semana 6)
+
+- **Fecha:** 2026-11-14
+- **Prompt o sugerencia:** El linter dio 10 avisos E501 (líneas de más de 88 caracteres). Opción 1: partir todas las líneas, incluidas las de las pruebas. Opción 2: subir el límite a 100 en `pyproject.toml`.
+- **Decisión:** Aceptada con cambios
+- **Por qué:** Elegí 100 porque los nombres en español son largos y partir líneas legibles no mejora el código. La única línea que pasaba de 100 (helper `crear_repo` de las pruebas) la partí, sin cambiar su lógica. Lo justifiqué en el informe.
+- **Verificación:** `ruff check .` dice `All checks passed!` y `pip-audit -r requirements-dev.txt` no encuentra vulnerabilidades.
+- **Commit relacionado:** «Configura ruff (E,F,B,S) en pyproject.toml y fija dependencias de desarrollo» (`c8dfb2f`)
+
 ## Resumen
 
 | Decisión | Cantidad |
 |---|---|
-| Aceptadas | 4 |
-| Aceptadas con cambios | 1 |
-| Rechazadas | 1 |
+| Aceptadas | 5 |
+| Aceptadas con cambios | 4 |
+| Rechazadas | 2 |
 
 ## Errores que atraparon las pruebas
 
 En la fase roja las 14 pruebas fallaron con `NotImplementedError`, lo que confirmó que sí ejercitan la función. La primera implementación pasó todas las pruebas, así que en esta funcionalidad no hubo un defecto de código que una prueba detectara. Lo que sí comprobé es que las pruebas detectan errores: las 4 mutaciones manuales de la entrada 5 hicieron fallar entre 1 y 3 pruebas cada una.
+
+En la semana 6 comprobé que las pruebas nuevas sí detectan los defectos: ejecuté `tests/test_seguridad.py` contra el código del commit `0a04fa6` (agregando solo los nombres nuevos que importa) y dio `18 failed, 8 passed`. Fallan todas las pruebas de H-01 a H-06. Pasan las pruebas de abuso de H-08 (el control de acceso ya funcionaba; faltaba probarlo) y las de casos válidos (texto en el límite, tildes, hora UTC por defecto).
 
 ## Reflexión final (5 a 8 líneas)
 

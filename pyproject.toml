@@ -1,0 +1,27 @@
+[project]
+name = "incidencias-ia"
+version = "0.2.0"
+description = "Clasificación y priorización de incidencias con IA: ajuste manual de prioridad (HU-03)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Carlos Andrés Rueda" }]
+dependencies = []  # el código solo usa la biblioteca estándar
+
+[tool.ruff]
+target-version = "py310"
+# 100 en lugar de 88: los identificadores en español (prioridad_sugerida,
+# JustificacionRequeridaError...) son largos. Justificado en revision_seguridad.md.
+line-length = 100
+
+[tool.ruff.lint]
+# E: estilo (pycodestyle), F: errores (pyflakes), B: errores probables (bugbear),
+# S: seguridad (bandit)
+select = ["E", "F", "B", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+# assert es la forma normal de comprobar en pytest
+"tests/**" = ["S101"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

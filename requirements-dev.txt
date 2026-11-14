@@ -1,0 +1,5 @@
+# Herramientas de desarrollo (el código no tiene dependencias de ejecución).
+# Versiones fijadas; revisadas con pip-audit el 2026-11-14.
+ruff==0.16.9
+pytest==9.2.0
+pip-audit==2.10.1

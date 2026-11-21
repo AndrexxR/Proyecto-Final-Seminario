@@ -3,7 +3,7 @@
 Proyecto: Sistema web de inventarios con clasificación y priorización de incidencias mediante IA
 Estudiante: Carlos Andrés Rueda
 Funcionalidad: HU-03 Ajuste manual de prioridad por el técnico, con justificación cuando corresponda
-Asistente usado: Claude. Semana 5: modo chat. Semana 6: Claude Code como agente de código, en la rama `claude/wonderful-cerf-d5iioc`
+Asistente usado: Claude. Semana 5: modo chat. Semanas 6 y 7: Claude Code como agente de código, en la rama `claude/wonderful-cerf-d5iioc`
 
 ## Entradas
 
@@ -106,12 +106,48 @@ Asistente usado: Claude. Semana 5: modo chat. Semana 6: Claude Code como agente 
 - **Verificación:** `ruff check .` dice `All checks passed!` y `pip-audit` no encuentra vulnerabilidades. Las versiones de las herramientas quedaron fijadas en `pyproject.toml`.
 - **Commit relacionado:** «Configura ruff (E,F,B,S) en pyproject.toml y fija dependencias de desarrollo» (`c8dfb2f`)
 
+### Entrada 12 (semana 7)
+
+- **Fecha:** 2026-11-21
+- **Prompt o sugerencia:** Diseño de casos. Le di a la IA la regla de cada función (contrato de HU-03 del README) y le pedí: «Para cada regla, propone casos con particiones de equivalencia (un caso por grupo, incluidos los inválidos), valores límite (el último valor de una partición y el primero de la siguiente) y, para `cambiar_prioridad`, una tabla de decisión con todas las combinaciones, simplificada donde una condición no importe. El esperado debe salir de la regla, no del código. Señala las ambigüedades en lugar de resolverlas por tu cuenta».
+- **Decisión:** Aceptada con cambios
+- **Por qué:** Revisé la propuesta con las cinco preguntas. Particiones y límites: los límites de la longitud tenían que medirse después de quitar los espacios de los extremos, y eso obligó a agregar el caso de 500 con espacios. Origen del esperado: cada esperado tenía que salir de la regla escrita en la sección 1 del registro. Ambigüedades y reglas inventadas: varias cosas que parecían reglas eran interpretaciones (el orden de los errores, si el tabulador es de control, si un salto final cuenta); las dejé como decisiones A1 a A9 y marqué cuáles debo confirmar con el docente. La tabla de decisión pasó de 128 combinaciones a 9 reglas.
+- **Verificación:** Contrasté cada fila de las tablas con el texto de la regla. Las ambigüedades A2, A3, A7, A8 y A9 quedan por confirmar.
+- **Commit relacionado:** «Registro de pruebas: reglas y tablas de casos de las cuatro funciones» (`e5f7a64`)
+
+### Entrada 13 (semana 7)
+
+- **Fecha:** 2026-11-21
+- **Prompt o sugerencia:** Generación de pruebas: «Escribe pruebas con pytest para estas cuatro funciones a partir de la regla y de esta tabla. Usa `@pytest.mark.parametrize` con un comentario por fila que diga qué caso de la tabla es, `pytest.raises` con el tipo de error exacto y esperados fijos. No modifiques el código del proyecto».
+- **Decisión:** Aceptada con cambios
+- **Por qué:** El borrador (34 casos, todos en verde) tenía pruebas débiles: `pytest.raises(Exception)`, límites calculados con la constante del código, `assert ticket is not None`, la tabla de F3 incompleta y ninguna comprobación de que un error no deje cambios. Lo corregí aplicando las tres preguntas a cada prueba; el detalle está en la sección 2 del registro.
+- **Verificación:** Metí 5 errores en una copia del código: el borrador dejó pasar 3 (D1, D2 y D4) y la suite revisada los detectó todos. La fila del espacio no separable falló con el código real: revisé la regla, vi que era un defecto del código y corregí el código, no la prueba. `python -m pytest -v`: todo en verde.
+- **Commit relacionado:** borrador `37e64b9`, revisión `bf12242` y corrección del código `46aff6a`
+
+### Entrada 14 (semana 7)
+
+- **Fecha:** 2026-11-21
+- **Prompt o sugerencia:** Datos sintéticos: «Genera en JSON usuarios, tickets y justificaciones para pruebas de un sistema de incidencias de negocios de barrio en Santander, Colombia. Nada de personas reales; teléfonos claramente ficticios; incluye tildes, ñ, apóstrofo, texto vacío, valores en cero, un rol casi correcto ("Soporte") y justificaciones que intenten meter saltos de línea en la auditoría».
+- **Decisión:** Aceptada con cambios
+- **Por qué:** Los datos traían los casos pedidos. Yo escribí el campo `guardada` (el esperado) de cada justificación a partir de la regla y quité una afirmación del archivo que no podía comprobar (que el bloque `000` nunca se asigna a líneas reales); la cambié por «inventados». No incluí ids en cero porque la regla no los define (A8).
+- **Verificación:** Revisé que ningún nombre fuera de alguien conocido ni mío ni de mi familia. La prueba `test_los_datos_traen_los_casos_dificiles` avisa si alguien recorta los casos difíciles. Los datos sirvieron: con el error M5 (rol sin distinguir mayúsculas), la única prueba nueva que falló fue la del usuario sintético con rol `"Soporte"`.
+- **Commit relacionado:** «Agrega datos sintéticos con fixture y pruebas que los usan» (`41f3b16`)
+
+### Entrada 15 (semana 7)
+
+- **Fecha:** 2026-11-21
+- **Prompt o sugerencia:** Romper el código a propósito: cinco errores, uno a la vez (`>` por `>=`, máximo de 500 a 50, `_exige_justificacion` siempre `False`, prioridad repetida solo en tickets abiertos y rol sin distinguir mayúsculas).
+- **Decisión:** Aceptada
+- **Por qué:** Es la forma de saber si las pruebas protegen las reglas o solo pasan.
+- **Verificación:** M4 no hizo fallar ninguna prueba (94 en verde con el código roto). Agregué la fila R5 con un ticket pendiente que ya tiene esa prioridad, y con el mismo error esa fila falla. Deshice cada cambio con `git restore` y comprobé que `git status` quedara limpio.
+- **Commit relacionado:** «Agrega el caso de prioridad repetida en ticket pendiente y anota los errores introducidos» (`bc4352b`)
+
 ## Resumen
 
 | Decisión | Cantidad |
 |---|---|
-| Aceptadas | 5 |
-| Aceptadas con cambios | 4 |
+| Aceptadas | 6 |
+| Aceptadas con cambios | 7 |
 | Rechazadas | 2 |
 
 ## Errores que atraparon las pruebas
@@ -119,6 +155,8 @@ Asistente usado: Claude. Semana 5: modo chat. Semana 6: Claude Code como agente 
 En la fase roja las 14 pruebas fallaron con `NotImplementedError`, lo que confirmó que sí ejercitan la función. La primera implementación pasó todas las pruebas, así que en esta funcionalidad no hubo un defecto de código que una prueba detectara. Lo que sí comprobé es que las pruebas detectan errores: las 4 mutaciones manuales de la entrada 5 hicieron fallar entre 1 y 3 pruebas cada una.
 
 En la semana 6 comprobé que las pruebas nuevas sí detectan los defectos: ejecuté `tests/test_seguridad.py` contra el código del commit `0a04fa6` (agregando solo los nombres nuevos que importa) y dio `18 failed, 8 passed`. Fallan todas las pruebas de H-01 a H-06. Pasan las pruebas de abuso de H-08 (el control de acceso ya funcionaba; faltaba probarlo) y las de casos válidos (texto en el límite, tildes, hora UTC por defecto).
+
+En la semana 7 una prueba escrita desde la regla encontró un defecto real: el código rechazaba el espacio no separable, que la regla sí admite (fila F1-P7, corregido en `46aff6a`). Además, de los cinco errores metidos a propósito, uno (M4) no lo detectaba ninguna prueba hasta que agregué el caso que faltaba.
 
 ## Reflexión final (5 a 8 líneas)
 

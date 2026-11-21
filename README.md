@@ -154,17 +154,12 @@ Registros de auditoría guardados: 2
 
 ## 5. Pruebas
 
-Pruebas de HU-03 (`tests/test_prioridad.py`) y pruebas de seguridad y abuso de la semana 6
-(`tests/test_seguridad.py`):
+Toda la suite: pruebas de HU-03 (`test_prioridad.py`), de seguridad y abuso (`test_seguridad.py`),
+de las reglas con particiones, límites y tabla de decisión (`test_reglas.py`) y con datos sintéticos
+(`test_con_datos.py`). El diseño de los casos está en [`registro_pruebas.md`](registro_pruebas.md).
 
 ```bash
-python -m pytest
-```
-
-Sin instalar nada, también corren con la biblioteca estándar:
-
-```bash
-python -m unittest
+python -m pytest -v
 ```
 
 Linter (reglas E, F, B y S, configuradas en `pyproject.toml`) y auditoría de las dependencias
@@ -187,6 +182,11 @@ incidencias/repositorio.py   Repositorio en memoria (reemplaza a la BD y a la au
 incidencias/__main__.py      Demostración por consola (python -m incidencias)
 tests/test_prioridad.py      Pruebas de HU-03: normales, límite y error (semana 5)
 tests/test_seguridad.py      Pruebas de los hallazgos corregidos y de abuso (semana 6)
+tests/test_reglas.py         Pruebas de las reglas: particiones, límites y tabla de decisión (semana 7)
+tests/test_con_datos.py      Pruebas con los datos sintéticos (semana 7)
+tests/conftest.py            Fixtures que cargan los datos sintéticos
+tests/datos/                 Datos sintéticos de usuarios, tickets y justificaciones
+registro_pruebas.md          Reglas, tablas de casos, revisión de las pruebas y errores introducidos
 docs/revision_ia.md          Prompt y respuesta de la revisión con IA, con su verificación
 revision_seguridad.md        Informe de revisión de código y seguridad (semana 6)
 bitacora_ia.md               Bitácora de uso de IA

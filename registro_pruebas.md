@@ -160,7 +160,16 @@ Para responder la pregunta 2 con evidencia y no a ojo, metí 5 errores en una co
 
 ## 3. Errores introducidos a propósito
 
-_(se completa en el paso 5)_
+Cada error se metió en el código real, uno a la vez. Después de cada uno corrí toda la suite (`python -m pytest`) y lo deshice con `git restore`.
+
+| # | Error introducido | Archivo | Resultado | Prueba que falló | Acción |
+|---|---|---|---|---|---|
+| M1 | `len(limpia) > LONGITUD_MAXIMA_JUSTIFICACION` cambiado a `>=` | `incidencias/prioridad.py` | 3 failed, 91 passed | `test_normalizar_justificacion_en_el_limite_de_500` (500 y 500 con espacios) y `test_justificacion_justo_en_el_limite_se_acepta` | Ninguna: se detecta en el borde, como debe ser |
+| M2 | Máximo de la justificación de 500 a 50 | `incidencias/modelos.py` | 3 failed, 91 passed | `test_normalizar_justificacion_en_el_limite_de_500` (499, 500 y 500 con espacios) | Ninguna. El borrador de la IA no lo habría detectado porque usaba la constante (ver sección 2) |
+| M3 | `_exige_justificacion` devuelve siempre `False` | `incidencias/prioridad.py` | Fallan las 9 filas «exige» de F3, R6 y 2 pruebas de la semana 5 | `test_exige_justificacion_segun_la_sugerencia`, `test_cambiar_prioridad_rechaza_sin_dejar_cambios` (R6) | Ninguna |
+| M4 | La prioridad repetida solo es conflicto si el ticket está `abierto` | `incidencias/prioridad.py` | **94 passed: ninguna prueba falló** | Ninguna | Agregué la fila R5 con un ticket `pendiente_clasificacion` que ya tiene `Alta`. Con el mismo error, esa fila falla (1 failed, 94 passed) |
+
+Después de cada `git restore`, `git status` quedó limpio y la suite volvió a pasar completa.
 
 ## 4. Datos de prueba sintéticos
 

@@ -183,6 +183,8 @@ def repo_con(estado="abierto", sugerida="Media", actual="Media"):
         ("soporte", 1, "cerrado", "Media", "Media", "Alta", "x", ConflictoError, 409),
         # R5: la prioridad pedida ya es la vigente
         ("soporte", 1, "abierto", "Media", "Alta", "Alta", "x", ConflictoError, 409),
+        # R5: también con el ticket pendiente de clasificación (lo agregué por el error M4)
+        ("soporte", 1, "pendiente_clasificacion", None, "Alta", "Alta", "x", ConflictoError, 409),
         # R6: se aparta de la sugerida y no hay justificación
         ("soporte", 1, "abierto", "Media", "Media", "Alta", None, JustificacionRequeridaError, 400),
         # R6: sin sugerencia de la IA y con justificación de solo espacios

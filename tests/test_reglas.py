@@ -60,6 +60,8 @@ def test_normalizar_justificacion_acepta_y_limpia(entrada, esperado):
         {"motivo": "x"},  # F1-P8 diccionario
         "línea 1\nlínea 2",  # F1-P9 salto de línea en medio
         "a\rb",  # F1-P9 retorno de carro en medio
+        "a\u2028b",  # F1-P9 separador de línea de Unicode
+        "a\u2029b",  # F1-P9 separador de párrafo de Unicode
         "a\x00b",  # F1-P10 caracter nulo
         "a\x1b[2Jb",  # F1-P10 secuencia de escape de terminal
         "a\tb",  # F1-P10 tabulador (A4: es de control)

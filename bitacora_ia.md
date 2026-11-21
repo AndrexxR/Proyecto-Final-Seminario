@@ -3,17 +3,17 @@
 Proyecto: Sistema web de inventarios con clasificación y priorización de incidencias mediante IA
 Estudiante: Carlos Andrés Rueda
 Funcionalidad: HU-03 Ajuste manual de prioridad por el técnico, con justificación cuando corresponda
-Asistente usado: Claude. Semana 5: modo chat. Semanas 6 y 7: Claude Code como agente de código, en la rama `claude/wonderful-cerf-d5iioc`
+Asistente usado: Claude. Al principio en modo chat; desde la revisión de seguridad, Claude Code como agente de código en la rama `claude/wonderful-cerf-d5iioc`
 
 ## Entradas
 
 ### Entrada 1
 
 - **Fecha:** 2026-11-13
-- **Prompt o sugerencia:** Entregué al asistente el documento de diseño S4 y la guía de la tarea de la semana 5, y le pedí construir la primera funcionalidad con pruebas y la bitácora. El asistente propuso HU-03 y la función `cambiar_prioridad`.
+- **Prompt o sugerencia:** Entregué al asistente el documento de diseño S4 y la guía de la tarea, y le pedí construir la primera funcionalidad con pruebas y la bitácora. El asistente propuso HU-03 y la función `cambiar_prioridad`.
 - **Decisión:** Aceptada
 - **Por qué:** Es pequeña (una función con casos límite), usa las entidades `Ticket` e `HistorialPrioridad` del diseño y su endpoint ya define errores 400, 404 y 409 en la sección 6 del diseño.
-- **Verificación:** Contrasté la función con las secciones 5 (modelo de datos) y 6 (API) del diseño S4. Pendiente de mi parte: comprobar que HU-03 es de prioridad Must en mi documento de la semana 3.
+- **Verificación:** Contrasté la función con las secciones 5 (modelo de datos) y 6 (API) del diseño S4. Pendiente de mi parte: comprobar que HU-03 es de prioridad Must en mi documento de requisitos.
 - **Commit relacionado:** «Pruebas de cambio manual de prioridad HU-03 (en rojo)»
 
 ### Entrada 2
@@ -61,16 +61,16 @@ Asistente usado: Claude. Semana 5: modo chat. Semanas 6 y 7: Claude Code como ag
 - **Verificación:** `git diff 1bacf77 HEAD -- tests` no muestra cambios (no toqué las pruebas) y `python -m unittest` sigue en `OK` con las 14 pruebas. El orden de las validaciones se mantuvo igual.
 - **Commit relacionado:** «Refactor HU-03: extrae _validar_peticion, _validar_ticket y _exige_justificacion; sin cambiar comportamiento ni pruebas»
 
-### Entrada 7 (semana 6)
+### Entrada 7
 
 - **Fecha:** 2026-11-14
-- **Prompt o sugerencia:** Segunda revisión con IA usando el prompt de la semana (criterios, tabla con línea y severidad, problemas seguros separados de sospechas) sobre `modelos.py`, `prioridad.py` y `repositorio.py`. El prompt y la respuesta completos están en `docs/revision_ia.md`.
+- **Prompt o sugerencia:** Segunda revisión con IA usando el prompt de revisión del curso (criterios, tabla con línea y severidad, problemas seguros separados de sospechas) sobre `modelos.py`, `prioridad.py` y `repositorio.py`. El prompt y la respuesta completos están en `docs/revision_ia.md`.
 - **Decisión:** Aceptada con cambios
 - **Por qué:** La IA devolvió 10 hallazgos: 5 «seguros» y 5 «sospechas». No los copié al informe sin más: la clasificación como real o falso positivo depende de lo que pasa en mi código.
 - **Verificación:** Escribí un script que reproduce cada hallazgo contra el commit `0a04fa6` (salida en `docs/revision_ia.md`). Resultado: 6 reales (IA-01, 02, 03, 04, 09, 10), 3 falsos positivos (IA-05, 06, 08) y 1 real que pasa a pendientes (IA-07, carrera, porque no hay BD).
 - **Commit relacionado:** «Agrega la revisión con IA (prompt, hallazgos y verificación) en docs/revision_ia.md» (`c1c772b`)
 
-### Entrada 8 (semana 6)
+### Entrada 8
 
 - **Fecha:** 2026-11-14
 - **Prompt o sugerencia:** Tres hallazgos de la IA que rechacé como falsos positivos: IA-05 (`usuario=None`), IA-06 (XSS por mostrar la prioridad en el mensaje de error) e IA-08 (`KeyError` en `guardar_cambio_prioridad`).
@@ -79,16 +79,16 @@ Asistente usado: Claude. Semana 5: modo chat. Semanas 6 y 7: Claude Code como ag
 - **Verificación:** Ejecuté los tres casos: IA-06 sí devuelve un error de dominio 400 controlado. IA-05 e IA-08 lanzan excepción solo si se llama la función de forma distinta a la del contrato. Lo dejé documentado en el docstring de `guardar_cambio_prioridad`.
 - **Commit relacionado:** «Agrega revision_seguridad.md…» (sección 3)
 
-### Entrada 9 (semana 6)
+### Entrada 9
 
 - **Fecha:** 2026-11-14
 - **Prompt o sugerencia:** Corrección de H-01 (IA-10): la IA propuso una lista de estados válidos y validarla al crear el `Ticket`. Consideré también normalizar el estado con `.strip().lower()`.
 - **Decisión:** Aceptada con cambios
 - **Por qué:** Normalizar escondería datos corruptos en la BD; prefiero rechazarlos con `ValueError`. Además aproveché para quitar los valores mágicos (`ESTADO_ABIERTO`, `ESTADO_PENDIENTE_CLASIFICACION`, `ESTADOS`) y validar también las prioridades guardadas.
-- **Verificación:** Prueba nueva con `"Cerrado"`, `" cerrado"`, `"CERRADO"`, `""` y `"borrado"`. Las 14 pruebas de la semana 5 siguen pasando sin cambios en su lógica: `git diff 0a04fa6 -- tests/test_prioridad.py` solo muestra una línea partida por el linter.
+- **Verificación:** Prueba nueva con `"Cerrado"`, `" cerrado"`, `"CERRADO"`, `""` y `"borrado"`. Las 14 pruebas originales de HU-03 siguen pasando sin cambios en su lógica: `git diff 0a04fa6 -- tests/test_prioridad.py` solo muestra una línea partida por el linter.
 - **Commit relacionado:** «Corrige H-01: Ticket valida estado y prioridades contra listas cerradas» (`fe40129`)
 
-### Entrada 10 (semana 6)
+### Entrada 10
 
 - **Fecha:** 2026-11-14
 - **Prompt o sugerencia:** Usé Claude Code como agente con una instrucción delimitada: «trabaja en la rama `claude/wonderful-cerf-d5iioc`; configura ruff con E, F, B y S; corrige los hallazgos reales uno por commit, cada uno con una prueba nueva; no modifiques las pruebas existentes para que pasen; escribe docstrings, README e informe».
@@ -97,7 +97,7 @@ Asistente usado: Claude. Semana 5: modo chat. Semanas 6 y 7: Claude Code como ag
 - **Verificación:** El agente ejecutó `ruff check .` y `python -m pytest` después de cada commit (28 pruebas OK al final) y probó los comandos del README en una carpeta limpia con un venv nuevo. Yo reviso el diff completo de la rama con `git diff 0a04fa6..claude/wonderful-cerf-d5iioc` y cada commit con `git show <hash>` antes de integrarla a `main`.
 - **Commit relacionado:** de `c8dfb2f` a `d0c7a19` en la rama `claude/wonderful-cerf-d5iioc`
 
-### Entrada 11 (semana 6)
+### Entrada 11
 
 - **Fecha:** 2026-11-14
 - **Prompt o sugerencia:** El linter dio 10 avisos E501 (líneas de más de 88 caracteres). Opción 1: partir todas las líneas, incluidas las de las pruebas. Opción 2: subir el límite a 100 en `pyproject.toml`.
@@ -106,7 +106,7 @@ Asistente usado: Claude. Semana 5: modo chat. Semanas 6 y 7: Claude Code como ag
 - **Verificación:** `ruff check .` dice `All checks passed!` y `pip-audit` no encuentra vulnerabilidades. Las versiones de las herramientas quedaron fijadas en `pyproject.toml`.
 - **Commit relacionado:** «Configura ruff (E,F,B,S) en pyproject.toml y fija dependencias de desarrollo» (`c8dfb2f`)
 
-### Entrada 12 (semana 7)
+### Entrada 12
 
 - **Fecha:** 2026-11-21
 - **Prompt o sugerencia:** Diseño de casos. Le di a la IA la regla de cada función (contrato de HU-03 del README) y le pedí: «Para cada regla, propone casos con particiones de equivalencia (un caso por grupo, incluidos los inválidos), valores límite (el último valor de una partición y el primero de la siguiente) y, para `cambiar_prioridad`, una tabla de decisión con todas las combinaciones, simplificada donde una condición no importe. El esperado debe salir de la regla, no del código. Señala las ambigüedades en lugar de resolverlas por tu cuenta».
@@ -115,7 +115,7 @@ Asistente usado: Claude. Semana 5: modo chat. Semanas 6 y 7: Claude Code como ag
 - **Verificación:** Contrasté cada fila de las tablas con el texto de la regla. Las ambigüedades A2, A3, A7, A8 y A9 quedan por confirmar.
 - **Commit relacionado:** «Registro de pruebas: reglas y tablas de casos de las cuatro funciones» (`e5f7a64`)
 
-### Entrada 13 (semana 7)
+### Entrada 13
 
 - **Fecha:** 2026-11-21
 - **Prompt o sugerencia:** Generación de pruebas: «Escribe pruebas con pytest para estas cuatro funciones a partir de la regla y de esta tabla. Usa `@pytest.mark.parametrize` con un comentario por fila que diga qué caso de la tabla es, `pytest.raises` con el tipo de error exacto y esperados fijos. No modifiques el código del proyecto».
@@ -124,7 +124,7 @@ Asistente usado: Claude. Semana 5: modo chat. Semanas 6 y 7: Claude Code como ag
 - **Verificación:** Metí 5 errores en una copia del código: el borrador dejó pasar 3 (D1, D2 y D4) y la suite revisada los detectó todos. La fila del espacio no separable falló con el código real: revisé la regla, vi que era un defecto del código y corregí el código, no la prueba. `python -m pytest -v`: todo en verde.
 - **Commit relacionado:** borrador `37e64b9`, revisión `bf12242` y corrección del código `46aff6a`
 
-### Entrada 14 (semana 7)
+### Entrada 14
 
 - **Fecha:** 2026-11-21
 - **Prompt o sugerencia:** Datos sintéticos: «Genera en JSON usuarios, tickets y justificaciones para pruebas de un sistema de incidencias de negocios de barrio en Santander, Colombia. Nada de personas reales; teléfonos claramente ficticios; incluye tildes, ñ, apóstrofo, texto vacío, valores en cero, un rol casi correcto ("Soporte") y justificaciones que intenten meter saltos de línea en la auditoría».
@@ -133,7 +133,7 @@ Asistente usado: Claude. Semana 5: modo chat. Semanas 6 y 7: Claude Code como ag
 - **Verificación:** Revisé que ningún nombre fuera de alguien conocido ni mío ni de mi familia. La prueba `test_los_datos_traen_los_casos_dificiles` avisa si alguien recorta los casos difíciles. Los datos sirvieron: con el error M5 (rol sin distinguir mayúsculas), la única prueba nueva que falló fue la del usuario sintético con rol `"Soporte"`.
 - **Commit relacionado:** «Agrega datos sintéticos con fixture y pruebas que los usan» (`41f3b16`)
 
-### Entrada 15 (semana 7)
+### Entrada 15
 
 - **Fecha:** 2026-11-21
 - **Prompt o sugerencia:** Romper el código a propósito: cinco errores, uno a la vez (`>` por `>=`, máximo de 500 a 50, `_exige_justificacion` siempre `False`, prioridad repetida solo en tickets abiertos y rol sin distinguir mayúsculas).
@@ -154,9 +154,9 @@ Asistente usado: Claude. Semana 5: modo chat. Semanas 6 y 7: Claude Code como ag
 
 En la fase roja las 14 pruebas fallaron con `NotImplementedError`, lo que confirmó que sí ejercitan la función. La primera implementación pasó todas las pruebas, así que en esta funcionalidad no hubo un defecto de código que una prueba detectara. Lo que sí comprobé es que las pruebas detectan errores: las 4 mutaciones manuales de la entrada 5 hicieron fallar entre 1 y 3 pruebas cada una.
 
-En la semana 6 comprobé que las pruebas nuevas sí detectan los defectos: ejecuté `tests/test_seguridad.py` contra el código del commit `0a04fa6` (agregando solo los nombres nuevos que importa) y dio `18 failed, 8 passed`. Fallan todas las pruebas de H-01 a H-06. Pasan las pruebas de abuso de H-08 (el control de acceso ya funcionaba; faltaba probarlo) y las de casos válidos (texto en el límite, tildes, hora UTC por defecto).
+En la revisión de seguridad comprobé que las pruebas nuevas sí detectan los defectos: ejecuté `tests/test_seguridad.py` contra el código del commit `0a04fa6` (agregando solo los nombres nuevos que importa) y dio `18 failed, 8 passed`. Fallan todas las pruebas de H-01 a H-06. Pasan las pruebas de abuso de H-08 (el control de acceso ya funcionaba; faltaba probarlo) y las de casos válidos (texto en el límite, tildes, hora UTC por defecto).
 
-En la semana 7 una prueba escrita desde la regla encontró un defecto real: el código rechazaba el espacio no separable, que la regla sí admite (fila F1-P7, corregido en `46aff6a`). Además, de los cinco errores metidos a propósito, uno (M4) no lo detectaba ninguna prueba hasta que agregué el caso que faltaba.
+En la suite de reglas, una prueba escrita desde la regla encontró un defecto real: el código rechazaba el espacio no separable, que la regla sí admite (fila F1-P7, corregido en `46aff6a`). Además, de los cinco errores metidos a propósito, uno (M4) no lo detectaba ninguna prueba hasta que agregué el caso que faltaba.
 
 ## Reflexión final (5 a 8 líneas)
 

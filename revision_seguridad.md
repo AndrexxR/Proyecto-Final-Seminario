@@ -9,8 +9,8 @@ Commit revisado: `0a04fa6` (antes de las correcciones)
 
 - **Linter:** ruff 0.16.9 con las reglas E, F, B y S. Configuración en `pyproject.toml` (`line-length = 100`, S101 permitido solo en `tests/`). Antes: 10 avisos E501. Ahora: `All checks passed!`.
 - **Auditoría de dependencias:** pip-audit 2.10.1 sobre el entorno virtual con las herramientas de desarrollo. Resultado: sin vulnerabilidades (`No known vulnerabilities found`).
-- **Lista de revisión:** la de la semana 6 (corrección y pruebas, diseño y legibilidad, seguridad).
-- **Revisión con IA:** Claude (Claude Code) con el prompt de revisión de la semana (ver sección 3 y `docs/revision_ia.md`).
+- **Lista de revisión:** la del curso (corrección y pruebas, diseño y legibilidad, seguridad).
+- **Revisión con IA:** Claude (Claude Code) con el prompt de revisión del curso (ver sección 3 y `docs/revision_ia.md`).
 
 ### Puntos de seguridad revisados
 
@@ -40,7 +40,7 @@ Las líneas corresponden al commit revisado `0a04fa6`. Cada corrección tiene su
 
 **Severidad:** alta (permite acceder o cambiar datos sin permiso, o expone secretos), media (error probable o riesgo con condiciones), baja (estilo o mantenibilidad).
 
-Resultado: 28 pruebas pasan (14 de la semana 5, sin cambios de lógica, y 14 nuevas). La única edición a `tests/test_prioridad.py` es partir una línea larga del helper `crear_repo` (aviso E501, solo formato).
+Resultado: 28 pruebas pasan (las 14 originales de HU-03, sin cambios de lógica, y 14 nuevas). La única edición a `tests/test_prioridad.py` es partir una línea larga del helper `crear_repo` (aviso E501, solo formato).
 
 ### Avisos del linter no corregidos
 
@@ -51,7 +51,7 @@ Resultado: 28 pruebas pasan (14 de la semana 5, sin cambios de lógica, y 14 nue
 
 ## 3. Revisión con IA
 
-**Prompt usado:** revisor senior con foco en seguridad sobre `modelos.py`, `prioridad.py` y `repositorio.py`, con los criterios de la semana, una tabla con línea, categoría y severidad, y la indicación de separar problemas seguros de sospechas. El texto completo, la respuesta y la salida del script de verificación están en [`docs/revision_ia.md`](docs/revision_ia.md). Bitácora: entradas 7 y 8.
+**Prompt usado:** revisor senior con foco en seguridad sobre `modelos.py`, `prioridad.py` y `repositorio.py`, con los criterios del curso, una tabla con línea, categoría y severidad, y la indicación de separar problemas seguros de sospechas. El texto completo, la respuesta y la salida del script de verificación están en [`docs/revision_ia.md`](docs/revision_ia.md). Bitácora: entradas 7 y 8.
 
 | Hallazgo de la IA | ¿Real o falso positivo? | Cómo lo verifiqué |
 |---|---|---|
@@ -66,7 +66,7 @@ Resultado: 28 pruebas pasan (14 de la semana 5, sin cambios de lógica, y 14 nue
 | IA-09 La fecha de la auditoría se puede falsificar | Real (H-06), severidad baja | Se aceptó `datetime(1999, 1, 1)` sin zona como fecha del cambio |
 | IA-10 Estado `"Cerrado"` no se reconoce como cerrado | Real (H-01) | `estado="Cerrado"` y `" cerrado"` permitieron cambiar a `Alta` |
 
-**Lo que la IA no encontró:** (1) faltaba `.env.example` (H-07), y (2) la prueba de abuso de control de acceso solo cubría el rol `operativo` (H-08). Los dos salieron de la lista de revisión de la semana y no del código: la IA solo recibió los archivos fuente, así que no podía ver qué archivos faltaban en el repositorio ni qué casos cubrían las pruebas. Tampoco señaló el límite de línea del linter ni la falta de versiones fijadas (no había archivo de dependencias).
+**Lo que la IA no encontró:** (1) faltaba `.env.example` (H-07), y (2) la prueba de abuso de control de acceso solo cubría el rol `operativo` (H-08). Los dos salieron de la lista de revisión y no del código: la IA solo recibió los archivos fuente, así que no podía ver qué archivos faltaban en el repositorio ni qué casos cubrían las pruebas. Tampoco señaló el límite de línea del linter ni la falta de versiones fijadas (no había archivo de dependencias).
 
 ## 4. Pendientes
 
@@ -76,6 +76,6 @@ Resultado: 28 pruebas pasan (14 de la semana 5, sin cambios de lógica, y 14 nue
 | P-02 Inyección SQL | Aún no hay base de datos | Repositorio SQL solo con consultas con parámetros y una prueba que envíe `' OR 1=1 --` |
 | P-03 Contraseñas y autenticación | El login no es parte de este incremento | Usar argon2 o bcrypt con sal, nunca MD5 ni SHA-1 |
 | P-04 Capa API: autenticación (401) y no tomar `ahora` de la petición | Aún no hay endpoint `PATCH /api/tickets/{id}/prioridad` | Al crear el endpoint: exigir sesión antes de construir el `Usuario` y prueba de que el cliente no puede fijar la fecha |
-| P-05 Confirmar con el docente los estados, los niveles de prioridad y el límite de 500 caracteres | El diseño S4 no los define | Preguntar en la sesión de la semana 7 y ajustar las constantes de `modelos.py` |
+| P-05 Confirmar con el docente los estados, los niveles de prioridad y el límite de 500 caracteres | El diseño S4 no los define | Preguntar en la próxima sesión y ajustar las constantes de `modelos.py` |
 
 **Claves expuestas:** Ninguna. Se revisó el historial completo con `git log --all -p` buscando `password`, `secret`, `api_key` y `token`: no hay claves en ningún commit.

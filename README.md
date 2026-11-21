@@ -7,7 +7,7 @@ prioridad de cada incidencia y el técnico de soporte toma la decisión final. E
 implementa **HU-03: ajuste manual de prioridad por el técnico, con justificación cuando corresponda**,
 con registro de auditoría de cada cambio. Por ahora la persistencia es un repositorio en memoria.
 
-La revisión de código y de seguridad de la semana 6 está en [`revision_seguridad.md`](revision_seguridad.md).
+La revisión de código y de seguridad está en [`revision_seguridad.md`](revision_seguridad.md).
 
 #### Historia de usuario
 
@@ -98,7 +98,7 @@ Nunca modifica `prioridad_sugerida`.
 - Longitud máxima de la justificación: 500 caracteres.
 - «Justificación cuando corresponda» se interpreta como la regla de arriba (obligatoria si se aparta de la IA).
 - El código 403 no aparece en la tabla de la API del diseño; se agrega para el caso de un usuario sin rol de técnico.
-- El repositorio es en memoria. Sustituirlo por la base de datos real es trabajo de otra semana.
+- El repositorio es en memoria. Sustituirlo por la base de datos real queda para un incremento posterior.
 
 ## 2. Requisitos
 
@@ -128,7 +128,7 @@ Activa el entorno: `source .venv/bin/activate` en Linux o macOS, `.venv\Scripts\
 pip install ruff==0.16.9 pytest==9.2.0 pip-audit==2.10.1
 ```
 
-Si vas a configurar la base de datos o el servicio de IA (próximas semanas), copia `.env.example`
+Si vas a configurar la base de datos o el servicio de IA (próximos incrementos), copia `.env.example`
 como `.env` y pon tus valores. `.env` no se sube al repositorio.
 
 ## 4. Ejecución
@@ -180,15 +180,15 @@ incidencias/modelos.py       Ticket, Usuario, RegistroAuditoria, constantes y er
 incidencias/prioridad.py     cambiar_prioridad (HU-03) y sus validaciones
 incidencias/repositorio.py   Repositorio en memoria (reemplaza a la BD y a la auditoría)
 incidencias/__main__.py      Demostración por consola (python -m incidencias)
-tests/test_prioridad.py      Pruebas de HU-03: normales, límite y error (semana 5)
-tests/test_seguridad.py      Pruebas de los hallazgos corregidos y de abuso (semana 6)
-tests/test_reglas.py         Pruebas de las reglas: particiones, límites y tabla de decisión (semana 7)
-tests/test_con_datos.py      Pruebas con los datos sintéticos (semana 7)
+tests/test_prioridad.py      Pruebas de HU-03: normales, límite y error
+tests/test_seguridad.py      Pruebas de los hallazgos corregidos y de abuso
+tests/test_reglas.py         Pruebas de las reglas: particiones, límites y tabla de decisión
+tests/test_con_datos.py      Pruebas con los datos sintéticos
 tests/conftest.py            Fixtures que cargan los datos sintéticos
 tests/datos/                 Datos sintéticos de usuarios, tickets y justificaciones
 registro_pruebas.md          Reglas, tablas de casos, revisión de las pruebas y errores introducidos
 docs/revision_ia.md          Prompt y respuesta de la revisión con IA, con su verificación
-revision_seguridad.md        Informe de revisión de código y seguridad (semana 6)
+revision_seguridad.md        Informe de revisión de código y seguridad
 bitacora_ia.md               Bitácora de uso de IA
 pyproject.toml               Metadatos, dependencias de desarrollo fijadas y configuración de ruff y pytest
 .env.example                 Variables de entorno de ejemplo (sin valores reales)
@@ -196,10 +196,10 @@ pyproject.toml               Metadatos, dependencias de desarrollo fijadas y con
 
 ## 7. Uso de IA
 
-Usé Claude como asistente en todo el proyecto: para pasar del diseño S4 al contrato y a las pruebas
-(semana 5) y, en la semana 6, para la segunda revisión de código y como agente de código para las
-correcciones, en una rama propia (`claude/wonderful-cerf-d5iioc`) cuyo diff revisé antes de
-integrarla. Cada sugerencia está en [`bitacora_ia.md`](bitacora_ia.md) con la decisión (aceptada,
+Usé Claude como asistente en todo el proyecto: para pasar del diseño S4 al contrato y a las pruebas,
+para la segunda revisión de código, como agente de código para las correcciones (en una rama propia,
+`claude/wonderful-cerf-d5iioc`, cuyo diff revisé antes de integrarla) y para proponer casos, pruebas y
+datos sintéticos, que revisé contra las reglas en [`registro_pruebas.md`](registro_pruebas.md). Cada sugerencia está en [`bitacora_ia.md`](bitacora_ia.md) con la decisión (aceptada,
 con cambios o rechazada), el motivo y cómo la verifiqué. Cada hallazgo de la IA lo reproduje en el
 código antes de aceptarlo ([`docs/revision_ia.md`](docs/revision_ia.md)); los falsos positivos están
 en el informe de seguridad.

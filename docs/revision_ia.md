@@ -1,8 +1,8 @@
-# Revisión de código con IA (semana 6)
+# Revisión de código con IA
 
 - **Fecha:** 2026-11-14
 - **Asistente:** Claude (Claude Code, sesión en la nube), trabajando en la rama `claude/wonderful-cerf-d5iioc`.
-- **Commit revisado:** `0a04fa6` (código de la semana 5, antes de las correcciones).
+- **Commit revisado:** `0a04fa6` (código de HU-03 antes de las correcciones).
 - **Alcance:** `incidencias/modelos.py`, `incidencias/prioridad.py`, `incidencias/repositorio.py`.
 
 ## Prompt usado

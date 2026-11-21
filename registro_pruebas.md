@@ -4,7 +4,7 @@ Proyecto: Incidencias IA. Ajuste manual de prioridad (HU-03)
 Estudiante: Carlos Andrés Rueda
 Fecha: 2026-11-21
 
-Pruebas de esta semana: `tests/test_reglas.py` (pytest, con `parametrize`) y los datos sintéticos en `tests/datos/` con su fixture en `tests/conftest.py`. Las pruebas de semanas anteriores (`test_prioridad.py`, `test_seguridad.py`) siguen en la suite sin cambios.
+Pruebas nuevas: `tests/test_reglas.py` (pytest, con `parametrize`) y los datos sintéticos en `tests/datos/` con su fixture en `tests/conftest.py`. Las pruebas que ya existían (`test_prioridad.py`, `test_seguridad.py`) siguen en la suite sin cambios.
 
 Ejecución: `python -m pytest -v`
 
@@ -112,14 +112,14 @@ En R1 a R6 además se comprueba que la prioridad vigente no cambió y que no hay
 
 | # | Ambigüedad | Decisión | Estado |
 |---|---|---|---|
-| A1 | Si fallan varias condiciones a la vez, ¿qué error sale primero? La regla no fija el orden | El de la tabla: primero el permiso (403), para que un usuario sin permiso no averigüe si un ticket existe (decidido en la revisión de seguridad de la semana 6) | Decidido |
+| A1 | Si fallan varias condiciones a la vez, ¿qué error sale primero? La regla no fija el orden | El de la tabla: primero el permiso (403), para que un usuario sin permiso no averigüe si un ticket existe (decidido en la revisión de seguridad) | Decidido |
 | A2 | ¿Los 500 caracteres se cuentan antes o después de quitar los espacios de los extremos? | Después: se cuenta lo que se guarda | Por confirmar con el docente |
 | A3 | ¿Un salto de línea al final (lo que agrega un cuadro de texto al pulsar Enter) cuenta como «salto de línea»? | No: se quita junto con los espacios de los extremos y no llega a la auditoría. Solo se rechaza un salto dentro del texto | Por confirmar |
 | A4 | ¿El tabulador es un «caracter de control»? | Sí: en Unicode es de control (categoría Cc), así que se rechaza | Decidido |
 | A5 | ¿Un espacio no separable (lo pega Word o el navegador) es válido? | Sí: no es salto de línea ni caracter de control | Decidido |
 | A6 | Si la justificación es opcional (R8/R9) pero viene inválida (por ejemplo, un número), ¿se ignora o se rechaza? | Se rechaza con 400: lo que se guarda en la auditoría siempre debe ser válido | Decidido |
 | A7 | ¿Un ticket `pendiente_clasificacion` pasa a `abierto` después del cambio manual? | La regla no lo dice; hoy el estado no cambia | Por confirmar con el docente |
-| A8 | ¿Puede existir un ticket o usuario con id 0? | La regla no lo dice y no lo pruebo; con la base de datos los ids empiezan en 1 | Pendiente para la semana de la BD |
+| A8 | ¿Puede existir un ticket o usuario con id 0? | La regla no lo dice y no lo pruebo; con la base de datos los ids empiezan en 1 | Pendiente para cuando llegue la BD |
 | A9 | ¿Los caracteres «de formato» invisibles (categoría Cf, como U+200B o el que invierte el sentido del texto, U+202E) cuentan como «de control»? | Con la regla literal, no: Unicode no los llama de control. Pero U+202E puede servir para disfrazar el texto de la auditoría | Por confirmar con el docente; no tienen prueba hasta decidirlo |
 
 ## 2. Revisión de las pruebas generadas por la IA
@@ -130,7 +130,7 @@ Para responder la pregunta 2 con evidencia y no a ojo, metí 5 errores en una co
 
 | Error metido en la copia | Borrador (`37e64b9`) | Suite revisada |
 |---|---|---|
-| D1. Quitar la validación de tipo (vuelve el `AttributeError` de la semana 6) | 34 passed: **no lo detecta** | 4 failed |
+| D1. Quitar la validación de tipo (vuelve el `AttributeError` que se corrigió en la revisión de seguridad) | 34 passed: **no lo detecta** | 4 failed |
 | D2. Cambiar el máximo de 500 a 5000 | 34 passed: **no lo detecta** | 2 failed |
 | D3. Guardar el cambio antes de exigir la justificación | 3 failed | 8 failed |
 | D4. Guardar en la auditoría la prioridad final como si fuera la sugerida | 34 passed: **no lo detecta** | 2 failed |
@@ -145,7 +145,7 @@ Para responder la pregunta 2 con evidencia y no a ojo, metí 5 errores en una co
 | `test_ticket_con_estado_valido_se_crea` | 2 | Corregida | `assert ticket is not None` nunca puede fallar: un constructor no devuelve `None` | Se comparan el estado y las dos prioridades del ticket creado; se agregaron los casos con prioridades `None` |
 | `test_exige_justificacion` | 2 | Corregida | Tenía 4 de las 12 combinaciones de la tabla; faltaban las sugeridas `Baja` y `Alta` | Tabla completa de 12 filas y `is esperado` (antes `==`, que acepta 1 y 0 como si fueran booleanos) |
 | `test_cambiar_prioridad_errores` | 2 | Corregida | Solo revisaba el tipo de error; la regla también dice que un error no deja cambios ni auditoría | Se comprueban el código HTTP, la prioridad vigente sin cambio y la auditoría vacía |
-| Fila R1 del borrador (operativo con todo lo demás válido) | 3 | Corregida | Repetía `test_usuario_que_no_es_tecnico_no_puede_cambiar_la_prioridad` de la semana 5 y no probaba lo que dice la tabla: en R1 lo demás «no importa» | La fila R1 ahora trae un operativo con ticket inexistente y prioridad inválida, y debe dar 403 (A1) |
+| Fila R1 del borrador (operativo con todo lo demás válido) | 3 | Corregida | Repetía `test_usuario_que_no_es_tecnico_no_puede_cambiar_la_prioridad` de `test_prioridad.py` y no probaba lo que dice la tabla: en R1 lo demás «no importa» | La fila R1 ahora trae un operativo con ticket inexistente y prioridad inválida, y debe dar 403 (A1) |
 | `test_cambiar_prioridad_exitoso` | 2 | Corregida | `len(repo.auditoria) == 1` no revisa el contenido del registro; por eso no detectó D4 | Se compara el `RegistroAuditoria` completo y se revisa que la sugerida no cambió |
 | Filas de estado `"Cerrado"`, `" cerrado"`, `"borrado"`, `""` | 3 | Conservadas | Repiten valores de `test_seguridad.py`, pero aquí forman parte de la tabla de particiones de F2 con un caso por partición | Se completaron las particiones que faltaban (`"ABIERTO"`, `"abierto "`, `None`) |
 
@@ -156,7 +156,7 @@ Para responder la pregunta 2 con evidencia y no a ojo, metí 5 errores en una co
 
 **Defecto real que encontró una prueba.** La fila F1-P7 (espacio no separable) falló con el código. Revisé la regla antes de tocar la prueba: solo prohíbe saltos de línea y caracteres de control, y el espacio no separable no es ninguna de las dos cosas. El código usaba `isprintable()`, que rechaza más de lo que dice la regla. No cambié el esperado: corregí el código para rechazar solo las categorías Unicode `Cc`, `Zl` y `Zp` (commit `46aff6a`).
 
-**Ninguna prueba se ajustó al código.** La única prueba que falló reveló un defecto del código, y lo que se corrigió fue el código. Las pruebas de las semanas 5 y 6 no se tocaron.
+**Ninguna prueba se ajustó al código.** La única prueba que falló reveló un defecto del código, y lo que se corrigió fue el código. Las pruebas que ya existían (`test_prioridad.py` y `test_seguridad.py`) no se tocaron.
 
 ## 3. Errores introducidos a propósito
 
@@ -166,7 +166,7 @@ Cada error se metió en el código real, uno a la vez. Después de cada uno corr
 |---|---|---|---|---|---|
 | M1 | `len(limpia) > LONGITUD_MAXIMA_JUSTIFICACION` cambiado a `>=` | `incidencias/prioridad.py` | 3 failed, 91 passed | `test_normalizar_justificacion_en_el_limite_de_500` (500 y 500 con espacios) y `test_justificacion_justo_en_el_limite_se_acepta` | Ninguna: se detecta en el borde, como debe ser |
 | M2 | Máximo de la justificación de 500 a 50 | `incidencias/modelos.py` | 3 failed, 91 passed | `test_normalizar_justificacion_en_el_limite_de_500` (499, 500 y 500 con espacios) | Ninguna. El borrador de la IA no lo habría detectado porque usaba la constante (ver sección 2) |
-| M3 | `_exige_justificacion` devuelve siempre `False` | `incidencias/prioridad.py` | Fallan las 9 filas «exige» de F3, R6 y 2 pruebas de la semana 5 | `test_exige_justificacion_segun_la_sugerencia`, `test_cambiar_prioridad_rechaza_sin_dejar_cambios` (R6) | Ninguna |
+| M3 | `_exige_justificacion` devuelve siempre `False` | `incidencias/prioridad.py` | Fallan las 9 filas «exige» de F3, R6 y 2 pruebas de `test_prioridad.py` | `test_exige_justificacion_segun_la_sugerencia`, `test_cambiar_prioridad_rechaza_sin_dejar_cambios` (R6) | Ninguna |
 | M4 | La prioridad repetida solo es conflicto si el ticket está `abierto` | `incidencias/prioridad.py` | **94 passed: ninguna prueba falló** | Ninguna | Agregué la fila R5 con un ticket `pendiente_clasificacion` que ya tiene `Alta`. Con el mismo error, esa fila falla (1 failed, 94 passed) |
 | M5 | La comparación de rol ignora mayúsculas (`usuario.rol.lower()`) | `incidencias/prioridad.py` | En las suites nuevas (`test_reglas.py` y `test_con_datos.py`): 1 failed, 73 passed | `test_ningun_usuario_sin_rol_soporte_exacto_puede_cambiar`: lo atrapa el usuario sintético con rol `"Soporte"` | Ninguna. `test_seguridad.py` también lo detecta |
 

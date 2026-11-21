@@ -168,9 +168,30 @@ Cada error se metió en el código real, uno a la vez. Después de cada uno corr
 | M2 | Máximo de la justificación de 500 a 50 | `incidencias/modelos.py` | 3 failed, 91 passed | `test_normalizar_justificacion_en_el_limite_de_500` (499, 500 y 500 con espacios) | Ninguna. El borrador de la IA no lo habría detectado porque usaba la constante (ver sección 2) |
 | M3 | `_exige_justificacion` devuelve siempre `False` | `incidencias/prioridad.py` | Fallan las 9 filas «exige» de F3, R6 y 2 pruebas de la semana 5 | `test_exige_justificacion_segun_la_sugerencia`, `test_cambiar_prioridad_rechaza_sin_dejar_cambios` (R6) | Ninguna |
 | M4 | La prioridad repetida solo es conflicto si el ticket está `abierto` | `incidencias/prioridad.py` | **94 passed: ninguna prueba falló** | Ninguna | Agregué la fila R5 con un ticket `pendiente_clasificacion` que ya tiene `Alta`. Con el mismo error, esa fila falla (1 failed, 94 passed) |
+| M5 | La comparación de rol ignora mayúsculas (`usuario.rol.lower()`) | `incidencias/prioridad.py` | En las suites nuevas (`test_reglas.py` y `test_con_datos.py`): 1 failed, 73 passed | `test_ningun_usuario_sin_rol_soporte_exacto_puede_cambiar`: lo atrapa el usuario sintético con rol `"Soporte"` | Ninguna. `test_seguridad.py` también lo detecta |
 
 Después de cada `git restore`, `git status` quedó limpio y la suite volvió a pasar completa.
 
 ## 4. Datos de prueba sintéticos
 
-_(se completa en el paso 6)_
+**Origen.** Los generé con IA y están en `tests/datos/datos_sinteticos.json`. Los carga el fixture `datos` de `tests/conftest.py`; los fixtures `usuarios` y `repo_sintetico` los convierten en objetos del dominio, y los usan las pruebas de `tests/test_con_datos.py`. Al pedirlos indiqué: contexto de Santander (Colombia), negocios de barrio, nada de personas reales, teléfonos ficticios y casos difíciles.
+
+**Revisión.** Revisé cada registro antes de usarlo:
+- Los nombres son combinaciones inventadas de nombres y apellidos comunes, no de alguien que conozca. Los negocios (Panadería La Ñapa, Ferretería D'Alba...) también son inventados. No usé mis datos ni los de mi familia.
+- Los teléfonos llevan `000` en el bloque del medio para que se vea a simple vista que son de mentira.
+- El esperado de cada justificación (campo `guardada`) lo escribí yo a partir de la regla F1, no ejecutando el código.
+
+**Casos difíciles incluidos**
+
+| Caso | Dónde está | Para qué sirve |
+|---|---|---|
+| Tildes y ñ | `Valentina Peñaranda Ríos`, `José Ángel Muñoz`, `Íñigo Suárez`, `Sofía Güiza`, «sede Cañaveral» | Comprobar que la justificación con tildes, ñ y diéresis se guarda igual |
+| Apóstrofo | `Luz Marina O'Byrne`, `Camilo D'Paola Niño`, «Proveedor D'Alba» | Un apóstrofo no debe romper nada (y en la futura BD, probar consultas con parámetros) |
+| Texto vacío | Usuario 5 con nombre y teléfono vacíos; ticket 103 sin descripción; justificaciones `""`, `"   "` y `"\n"` | Una justificación vacía cuenta como ausente |
+| Valores en cero | `existencias_afectadas: 0` y «0 unidades» en las descripciones | Ceros que no deben confundirse con «sin dato» |
+| Rol casi correcto | Usuario 6 con rol `"Soporte"` y usuario 9 con rol vacío | Control de acceso exacto. Detectó el error M5 |
+| Ticket sin sugerencia de la IA | Ticket 102, `pendiente_clasificacion` con prioridades `null` | La justificación siempre se exige |
+| Emoji, signos invertidos y espacio no separable | Justificaciones válidas 4 y 5 | Texto real de un cuadro de texto o pegado desde Word |
+| Intentos de falsificar la auditoría | Justificaciones inválidas con salto de línea, tabulador y caracter nulo | Se rechazan con 400 |
+
+No incluí ids en cero porque la regla no dice si son válidos (ambigüedad A8).

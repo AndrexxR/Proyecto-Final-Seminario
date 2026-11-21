@@ -1,4 +1,5 @@
 """HU-03: ajuste manual de prioridad por el técnico de soporte."""
+import unicodedata
 from datetime import datetime, timezone
 
 from .modelos import (
@@ -16,6 +17,11 @@ from .modelos import (
     TicketNoEncontradoError,
     Usuario,
 )
+
+# Categorías Unicode que no se admiten en la justificación: caracteres de control (Cc,
+# incluye \n, \r y \t) y separadores de línea y de párrafo (Zl, Zp). Un espacio no
+# separable es un espacio (Zs) y sí se admite.
+_CATEGORIAS_PROHIBIDAS = ("Cc", "Zl", "Zp")
 
 
 def _exige_justificacion(ticket: Ticket, nueva_prioridad: str) -> bool:
@@ -50,7 +56,7 @@ def _normalizar_justificacion(justificacion: object) -> str | None:
         raise JustificacionInvalidaError(
             f"La justificación supera {LONGITUD_MAXIMA_JUSTIFICACION} caracteres"
         )
-    if any(not caracter.isprintable() for caracter in limpia):
+    if any(unicodedata.category(caracter) in _CATEGORIAS_PROHIBIDAS for caracter in limpia):
         raise JustificacionInvalidaError(
             "La justificación no puede tener saltos de línea ni caracteres de control"
         )

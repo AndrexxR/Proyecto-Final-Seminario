@@ -1,0 +1,31 @@
+{
+  "_origen": "Datos sintéticos generados con IA para las pruebas. Nombres, teléfonos y negocios inventados; ninguno corresponde a una persona o empresa real. Los teléfonos llevan 000 en el bloque del medio para que se note a simple vista que son inventados.",
+  "usuarios": [
+    {"usuario_id": 7, "nombre": "Valentina Peñaranda Ríos", "telefono": "+57 300 000 0107", "sede": "Bucaramanga, Cabecera", "rol": "soporte"},
+    {"usuario_id": 8, "nombre": "José Ángel Muñoz", "telefono": "+57 315 000 0108", "sede": "Floridablanca, Cañaveral", "rol": "soporte"},
+    {"usuario_id": 3, "nombre": "Luz Marina O'Byrne", "telefono": "+57 320 000 0103", "sede": "Girón, Casco antiguo", "rol": "operativo"},
+    {"usuario_id": 4, "nombre": "Íñigo Suárez", "telefono": "+57 301 000 0104", "sede": "Piedecuesta", "rol": "líder"},
+    {"usuario_id": 5, "nombre": "", "telefono": "", "sede": "Bucaramanga, Centro", "rol": "operativo"},
+    {"usuario_id": 6, "nombre": "Camilo D'Paola Niño", "telefono": "+57 318 000 0106", "sede": "Lebrija", "rol": "Soporte"},
+    {"usuario_id": 9, "nombre": "Sofía Güiza", "telefono": "+57 310 000 0109", "sede": "San Gil", "rol": ""}
+  ],
+  "tickets": [
+    {"ticket_id": 101, "negocio": "Panadería La Ñapa", "descripcion": "El datáfono de la caja 2 no conecta", "existencias_afectadas": 0, "estado": "abierto", "prioridad_sugerida": "Media", "prioridad_actual": "Media"},
+    {"ticket_id": 102, "negocio": "Droguería San José del Café", "descripcion": "No cuadra el inventario de acetaminofén: el sistema muestra 0 unidades", "existencias_afectadas": 0, "estado": "pendiente_clasificacion", "prioridad_sugerida": null, "prioridad_actual": null},
+    {"ticket_id": 103, "negocio": "Ferretería D'Alba", "descripcion": "", "existencias_afectadas": 12, "estado": "abierto", "prioridad_sugerida": "Alta", "prioridad_actual": "Baja"},
+    {"ticket_id": 104, "negocio": "Tienda Doña Inés", "descripcion": "Cerrado: se reemplazó la impresora térmica", "existencias_afectadas": 0, "estado": "cerrado", "prioridad_sugerida": "Baja", "prioridad_actual": "Baja"}
+  ],
+  "justificaciones_validas": [
+    {"texto": "Afecta el cierre de caja de la sede Cañaveral", "guardada": "Afecta el cierre de caja de la sede Cañaveral"},
+    {"texto": "  El señor de la Tienda Doña Inés pidió revisión hoy  ", "guardada": "El señor de la Tienda Doña Inés pidió revisión hoy"},
+    {"texto": "Proveedor D'Alba confirmó 0 unidades en bodega", "guardada": "Proveedor D'Alba confirmó 0 unidades en bodega"},
+    {"texto": "¿Urgente? Sí: ¡es quincena! 🧾", "guardada": "¿Urgente? Sí: ¡es quincena! 🧾"},
+    {"texto": "Caja 2 bloqueada (texto pegado desde Word)", "guardada": "Caja 2 bloqueada (texto pegado desde Word)"}
+  ],
+  "justificaciones_ausentes": ["", "   ", "\n"],
+  "justificaciones_invalidas": [
+    "Primera línea\nSegunda línea falsa de auditoría",
+    "Tabulado\taquí",
+    "Nulo\u0000oculto"
+  ]
+}

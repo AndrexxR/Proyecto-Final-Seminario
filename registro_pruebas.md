@@ -120,10 +120,43 @@ En R1 a R6 además se comprueba que la prioridad vigente no cambió y que no hay
 | A6 | Si la justificación es opcional (R8/R9) pero viene inválida (por ejemplo, un número), ¿se ignora o se rechaza? | Se rechaza con 400: lo que se guarda en la auditoría siempre debe ser válido | Decidido |
 | A7 | ¿Un ticket `pendiente_clasificacion` pasa a `abierto` después del cambio manual? | La regla no lo dice; hoy el estado no cambia | Por confirmar con el docente |
 | A8 | ¿Puede existir un ticket o usuario con id 0? | La regla no lo dice y no lo pruebo; con la base de datos los ids empiezan en 1 | Pendiente para la semana de la BD |
+| A9 | ¿Los caracteres «de formato» invisibles (categoría Cf, como U+200B o el que invierte el sentido del texto, U+202E) cuentan como «de control»? | Con la regla literal, no: Unicode no los llama de control. Pero U+202E puede servir para disfrazar el texto de la auditoría | Por confirmar con el docente; no tienen prueba hasta decidirlo |
 
 ## 2. Revisión de las pruebas generadas por la IA
 
-_(se completa después de generar las pruebas)_
+La IA generó un primer borrador de `tests/test_reglas.py` a partir de la regla y de las tablas de la sección 1 (commit `37e64b9`, 34 casos, todos en verde). A cada prueba le apliqué las tres preguntas: (1) ¿el esperado sale de la regla?, (2) ¿fallaría si rompo el código?, (3) ¿cubre algo que otra prueba no cubre? La versión revisada es el commit `bf12242`.
+
+Para responder la pregunta 2 con evidencia y no a ojo, metí 5 errores en una copia del código y corrí el borrador contra cada uno:
+
+| Error metido en la copia | Borrador (`37e64b9`) | Suite revisada |
+|---|---|---|
+| D1. Quitar la validación de tipo (vuelve el `AttributeError` de la semana 6) | 34 passed: **no lo detecta** | 4 failed |
+| D2. Cambiar el máximo de 500 a 5000 | 34 passed: **no lo detecta** | 2 failed |
+| D3. Guardar el cambio antes de exigir la justificación | 3 failed | 8 failed |
+| D4. Guardar en la auditoría la prioridad final como si fuera la sugerida | 34 passed: **no lo detecta** | 2 failed |
+| D5. No exigir justificación cuando no hay sugerencia | 1 failed | 4 failed |
+
+**Pruebas corregidas o descartadas**
+
+| Prueba del borrador | Pregunta que no pasó | Decisión | Razón | Qué hice en su lugar |
+|---|---|---|---|---|
+| `test_normalizar_justificacion_invalidas` | 1 y 2 | Corregida | Usaba `pytest.raises(Exception)`: el esperado no era el error de la regla (400) y aceptaba cualquier fallo, incluso un `AttributeError`. Por eso no detectó D1. Ruff también la marcó (B017) | `pytest.raises(JustificacionInvalidaError)` y se comprueba `codigo_http == 400` |
+| Fila `"x" * (LONGITUD_MAXIMA_JUSTIFICACION + 1)` y `test_normalizar_justificacion_en_el_maximo` | 1 y 2 | Corregidas | El esperado salía de la constante del código, no de la regla («hasta 500»). Si alguien cambia la constante, la prueba cambia con ella; por eso no detectó D2 | Esperados fijos: 499, 500 y 501 caracteres, más el caso de 500 con espacios en los extremos (A2) |
+| `test_ticket_con_estado_valido_se_crea` | 2 | Corregida | `assert ticket is not None` nunca puede fallar: un constructor no devuelve `None` | Se comparan el estado y las dos prioridades del ticket creado; se agregaron los casos con prioridades `None` |
+| `test_exige_justificacion` | 2 | Corregida | Tenía 4 de las 12 combinaciones de la tabla; faltaban las sugeridas `Baja` y `Alta` | Tabla completa de 12 filas y `is esperado` (antes `==`, que acepta 1 y 0 como si fueran booleanos) |
+| `test_cambiar_prioridad_errores` | 2 | Corregida | Solo revisaba el tipo de error; la regla también dice que un error no deja cambios ni auditoría | Se comprueban el código HTTP, la prioridad vigente sin cambio y la auditoría vacía |
+| Fila R1 del borrador (operativo con todo lo demás válido) | 3 | Corregida | Repetía `test_usuario_que_no_es_tecnico_no_puede_cambiar_la_prioridad` de la semana 5 y no probaba lo que dice la tabla: en R1 lo demás «no importa» | La fila R1 ahora trae un operativo con ticket inexistente y prioridad inválida, y debe dar 403 (A1) |
+| `test_cambiar_prioridad_exitoso` | 2 | Corregida | `len(repo.auditoria) == 1` no revisa el contenido del registro; por eso no detectó D4 | Se compara el `RegistroAuditoria` completo y se revisa que la sugerida no cambió |
+| Filas de estado `"Cerrado"`, `" cerrado"`, `"borrado"`, `""` | 3 | Conservadas | Repiten valores de `test_seguridad.py`, pero aquí forman parte de la tabla de particiones de F2 con un caso por partición | Se completaron las particiones que faltaban (`"ABIERTO"`, `"abierto "`, `None`) |
+
+**Casos que faltaban en el borrador y agregué**
+
+- F1: tildes, ñ y apóstrofo (P6); espacio no separable (P7); lista y diccionario (P8); `\r`, `\u2028` y `\u2029` (P9); escape de terminal y tabulador (P10); 1 caracter (L2); 500 con espacios (L5); salto de línea al final (A3).
+- F4: la segunda fila de R6 (sin sugerencia y con justificación de solo espacios), R7 sin sugerencia, R8 con justificación de solo espacios y la justificación opcional pero inválida (A6).
+
+**Defecto real que encontró una prueba.** La fila F1-P7 (espacio no separable) falló con el código. Revisé la regla antes de tocar la prueba: solo prohíbe saltos de línea y caracteres de control, y el espacio no separable no es ninguna de las dos cosas. El código usaba `isprintable()`, que rechaza más de lo que dice la regla. No cambié el esperado: corregí el código para rechazar solo las categorías Unicode `Cc`, `Zl` y `Zp` (commit `46aff6a`).
+
+**Ninguna prueba se ajustó al código.** La única prueba que falló reveló un defecto del código, y lo que se corrigió fue el código. Las pruebas de las semanas 5 y 6 no se tocaron.
 
 ## 3. Errores introducidos a propósito
 

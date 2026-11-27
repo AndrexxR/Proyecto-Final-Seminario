@@ -4,7 +4,7 @@ from datetime import datetime
 
 # Supuestos de diseño (ver README, sección «Supuestos»):
 # el documento S4 no lista los niveles de prioridad ni los estados.
-PRIORIDADES = ("Baja", "Media", "Alta")
+PRIORIDADES = ("Baja", "Media", "Alta", "Crítica")
 ROL_SOPORTE = "soporte"
 ESTADO_ABIERTO = "abierto"
 ESTADO_PENDIENTE_CLASIFICACION = "pendiente_clasificacion"

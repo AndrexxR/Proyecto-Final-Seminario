@@ -43,7 +43,7 @@ Fuente en el diseño S4: sección 5 (entidades `Ticket` e `HistorialPrioridad`) 
 def cambiar_prioridad(
     repositorio,                      # objeto con obtener_ticket() y guardar_cambio_prioridad()
     ticket_id: int,
-    nueva_prioridad: str,             # "Baja" | "Media" | "Alta" (distingue mayúsculas)
+    nueva_prioridad: str,             # "Baja" | "Media" | "Alta" | "Crítica" (distingue mayúsculas)
     usuario: Usuario,                 # quien hace el cambio; debe tener rol "soporte"
     justificacion: str | None = None,
     *,
@@ -93,7 +93,7 @@ Nunca modifica `prioridad_sugerida`.
 
 #### Supuestos (el documento de diseño no los define)
 
-- Niveles de prioridad: `Baja`, `Media`, `Alta`. El diseño solo muestra `Alta` como ejemplo.
+- Niveles de prioridad: `Baja`, `Media`, `Alta` y `Crítica`. `Crítica` sale de la HU-04 del documento de requisitos ([`docs/requisitos.pdf`](docs/requisitos.pdf)); la primera versión del código solo tenía tres niveles.
 - Estados del ticket: `abierto`, `pendiente_clasificacion` y `cerrado` (exactos; otro valor da `ValueError`).
 - Longitud máxima de la justificación: 500 caracteres.
 - «Justificación cuando corresponda» se interpreta como la regla de arriba (obligatoria si se aparta de la IA).

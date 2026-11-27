@@ -7,7 +7,8 @@ prioridad de cada incidencia y el técnico de soporte toma la decisión final. E
 implementa **HU-03: ajuste manual de prioridad por el técnico, con justificación cuando corresponda**,
 con registro de auditoría de cada cambio. Por ahora la persistencia es un repositorio en memoria.
 
-La revisión de código y de seguridad está en [`revision_seguridad.md`](revision_seguridad.md).
+La revisión de código y de seguridad está en [`revision_seguridad.md`](revision_seguridad.md) y el
+informe final en [`informe_final.md`](informe_final.md). Pipeline: [![CI](https://github.com/AndrexxR/Proyecto-Final-Seminario/actions/workflows/ci.yml/badge.svg)](https://github.com/AndrexxR/Proyecto-Final-Seminario/actions/workflows/ci.yml)
 
 #### Historia de usuario
 
@@ -43,7 +44,7 @@ Fuente en el diseño S4: sección 5 (entidades `Ticket` e `HistorialPrioridad`) 
 def cambiar_prioridad(
     repositorio,                      # objeto con obtener_ticket() y guardar_cambio_prioridad()
     ticket_id: int,
-    nueva_prioridad: str,             # "Baja" | "Media" | "Alta" (distingue mayúsculas)
+    nueva_prioridad: str,             # "Baja" | "Media" | "Alta" | "Crítica" (distingue mayúsculas)
     usuario: Usuario,                 # quien hace el cambio; debe tener rol "soporte"
     justificacion: str | None = None,
     *,
@@ -93,7 +94,7 @@ Nunca modifica `prioridad_sugerida`.
 
 #### Supuestos (el documento de diseño no los define)
 
-- Niveles de prioridad: `Baja`, `Media`, `Alta`. El diseño solo muestra `Alta` como ejemplo.
+- Niveles de prioridad: `Baja`, `Media`, `Alta` y `Crítica`. `Crítica` sale de la HU-04 del documento de requisitos ([`docs/requisitos.pdf`](docs/requisitos.pdf)); la primera versión del código solo tenía tres niveles.
 - Estados del ticket: `abierto`, `pendiente_clasificacion` y `cerrado` (exactos; otro valor da `ValueError`).
 - Longitud máxima de la justificación: 500 caracteres.
 - «Justificación cuando corresponda» se interpreta como la regla de arriba (obligatoria si se aparta de la IA).
@@ -187,7 +188,13 @@ tests/test_con_datos.py      Pruebas con los datos sintéticos
 tests/conftest.py            Fixtures que cargan los datos sintéticos
 tests/datos/                 Datos sintéticos de usuarios, tickets y justificaciones
 registro_pruebas.md          Reglas, tablas de casos, revisión de las pruebas y errores introducidos
+docs/requisitos.pdf          Documento de requisitos: entrevista, necesidades, historias HU-01 a HU-08
+docs/diseno_S4.pdf           Documento de diseño: matriz, C4, ADR-001, modelo de datos y API
 docs/revision_ia.md          Prompt y respuesta de la revisión con IA, con su verificación
+docs/informe_final.pdf       Informe final del proyecto integrador (PDF)
+docs/sustentacion.pdf        Diapositivas de la sustentación (PDF)
+informe_final.md             Informe final del proyecto integrador (fuente)
+.github/workflows/ci.yml     Pipeline: ruff y pytest en Python 3.10 y 3.13, y pip-audit
 revision_seguridad.md        Informe de revisión de código y seguridad
 bitacora_ia.md               Bitácora de uso de IA
 pyproject.toml               Metadatos, dependencias de desarrollo fijadas y configuración de ruff y pytest

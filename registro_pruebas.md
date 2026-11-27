@@ -46,7 +46,7 @@ No hay cálculos con decimales en el proyecto, así que `pytest.approx` no aplic
 
 ### F2. `Ticket(...)`: validación del estado y de las prioridades guardadas
 
-**Regla.** El estado de un ticket es exactamente uno de `abierto`, `pendiente_clasificacion` o `cerrado`. La prioridad sugerida y la vigente son `None` (análisis pendiente) o exactamente una de `Baja`, `Media` o `Alta`. Cualquier otro valor se rechaza con `ValueError` al crear el ticket.
+**Regla.** El estado de un ticket es exactamente uno de `abierto`, `pendiente_clasificacion` o `cerrado`. La prioridad sugerida y la vigente son `None` (análisis pendiente) o exactamente una de `Baja`, `Media`, `Alta` o `Crítica`. Cualquier otro valor se rechaza con `ValueError` al crear el ticket.
 
 **Particiones de equivalencia**
 
@@ -57,7 +57,7 @@ No hay cálculos con decimales en el proyecto, así que `pytest.approx` no aplic
 | F2-P3 | estado | Con espacios (inválida) | `" cerrado"`, `"abierto "` | `ValueError` |
 | F2-P4 | estado | Fuera de la lista o vacío (inválida) | `borrado`, `""`, `None` | `ValueError` |
 | F2-P5 | prioridades | `None` (sin análisis) | sugerida y vigente `None` | se crea |
-| F2-P6 | prioridades | Válida | `Baja`, `Media`, `Alta` | se crea |
+| F2-P6 | prioridades | Válida | `Baja`, `Media`, `Alta`, `Crítica` | se crea |
 | F2-P7 | prioridad sugerida | Inválida | `alta`, `Urgente`, `""` | `ValueError` |
 | F2-P8 | prioridad vigente | Inválida | `alta`, `Urgente`, `""` | `ValueError` |
 
@@ -67,14 +67,17 @@ No hay cálculos con decimales en el proyecto, así que `pytest.approx` no aplic
 
 **Regla.** La justificación es obligatoria cuando la nueva prioridad es distinta de la sugerida por la IA. Si el ticket no tiene sugerencia (`None`), siempre se exige. Si la nueva prioridad coincide con la sugerida, es opcional.
 
-**Tabla completa** (son pocas combinaciones, así que van todas: 4 sugeridas × 3 nuevas = 12)
+**Tabla completa** (son pocas combinaciones, así que van todas: 5 sugeridas × 4 nuevas = 20)
 
-| Sugerida \ Nueva | Baja | Media | Alta |
-|---|---|---|---|
-| `None` | exige | exige | exige |
-| Baja | no exige | exige | exige |
-| Media | exige | no exige | exige |
-| Alta | exige | exige | no exige |
+| Sugerida \ Nueva | Baja | Media | Alta | Crítica |
+|---|---|---|---|---|
+| `None` | exige | exige | exige | exige |
+| Baja | no exige | exige | exige | exige |
+| Media | exige | no exige | exige | exige |
+| Alta | exige | exige | no exige | exige |
+| Crítica | exige | exige | exige | no exige |
+
+El nivel `Crítica` se agregó después, al contrastar el código con la HU-04 del documento de requisitos ([`docs/requisitos.pdf`](docs/requisitos.pdf)); con él la tabla pasó de 12 a 20 combinaciones. Las filas de `Crítica` y las pruebas `test_critica_es_una_prioridad_valida` y `test_critica_mal_escrita_se_rechaza` están en `tests/test_reglas.py`.
 
 Particiones: sin sugerencia (exige), coincide con la sugerida (no exige), se aparta de la sugerida (exige).
 

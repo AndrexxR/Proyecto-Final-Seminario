@@ -157,6 +157,14 @@ def test_ticket_con_prioridad_invalida_lanza_value_error(sugerida, actual):
         ("Alta", "Baja", True),  # se aparta hacia abajo
         ("Alta", "Media", True),  # se aparta hacia abajo
         ("Alta", "Alta", False),  # coincide con la sugerida
+        (None, "Crítica", True),  # sin sugerencia: siempre exige
+        ("Baja", "Crítica", True),  # se aparta hacia arriba
+        ("Media", "Crítica", True),  # se aparta hacia arriba
+        ("Alta", "Crítica", True),  # se aparta hacia arriba
+        ("Crítica", "Baja", True),  # se aparta hacia abajo
+        ("Crítica", "Media", True),  # se aparta hacia abajo
+        ("Crítica", "Alta", True),  # se aparta hacia abajo
+        ("Crítica", "Crítica", False),  # coincide con la sugerida
     ],
 )
 def test_exige_justificacion_segun_la_sugerencia(sugerida, nueva, esperado):
@@ -247,3 +255,33 @@ def test_cambiar_prioridad_rechaza_justificacion_opcional_invalida():
     with pytest.raises(JustificacionInvalidaError):
         cambiar_prioridad(repo, 1, "Media", TECNICO, 12345, ahora=AHORA)
     assert repo.auditoria == []
+
+
+# ---------- Nivel «Crítica» (SRS, HU-04: «orden estricto: Crítica, Media y Baja») ----------
+
+@pytest.mark.parametrize(
+    "sugerida, actual, nueva, justificacion",
+    [
+        ("Alta", "Alta", "Crítica", "Caja bloqueada en quincena"),  # sube a Crítica, se aparta
+        ("Crítica", "Alta", "Crítica", None),  # vuelve a la sugerida Crítica, sin justificación
+        ("Crítica", "Crítica", "Media", "Era una consulta menor"),  # baja desde Crítica
+    ],
+)
+def test_critica_es_una_prioridad_valida(sugerida, actual, nueva, justificacion):
+    repo = repo_con(sugerida=sugerida, actual=actual)
+    registro = cambiar_prioridad(repo, 1, nueva, TECNICO, justificacion, ahora=AHORA)
+    assert (registro.prioridad_anterior, registro.prioridad_final) == (actual, nueva)
+    assert repo.obtener_ticket(1).prioridad_actual == nueva
+
+
+@pytest.mark.parametrize(
+    "invalida",
+    [
+        "critica",  # sin tilde y en minúscula
+        "Critica",  # sin tilde
+        "CRÍTICA",  # mayúsculas
+    ],
+)
+def test_critica_mal_escrita_se_rechaza(invalida):
+    with pytest.raises(PrioridadInvalidaError):
+        cambiar_prioridad(repo_con(), 1, invalida, TECNICO, "x", ahora=AHORA)

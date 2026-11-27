@@ -7,7 +7,8 @@ prioridad de cada incidencia y el técnico de soporte toma la decisión final. E
 implementa **HU-03: ajuste manual de prioridad por el técnico, con justificación cuando corresponda**,
 con registro de auditoría de cada cambio. Por ahora la persistencia es un repositorio en memoria.
 
-La revisión de código y de seguridad está en [`revision_seguridad.md`](revision_seguridad.md).
+La revisión de código y de seguridad está en [`revision_seguridad.md`](revision_seguridad.md) y el
+informe final en [`informe_final.md`](informe_final.md). Pipeline: [![CI](https://github.com/AndrexxR/Proyecto-Final-Seminario/actions/workflows/ci.yml/badge.svg)](https://github.com/AndrexxR/Proyecto-Final-Seminario/actions/workflows/ci.yml)
 
 #### Historia de usuario
 
@@ -187,7 +188,13 @@ tests/test_con_datos.py      Pruebas con los datos sintéticos
 tests/conftest.py            Fixtures que cargan los datos sintéticos
 tests/datos/                 Datos sintéticos de usuarios, tickets y justificaciones
 registro_pruebas.md          Reglas, tablas de casos, revisión de las pruebas y errores introducidos
+docs/requisitos.pdf          Documento de requisitos: entrevista, necesidades, historias HU-01 a HU-08
+docs/diseno_S4.pdf           Documento de diseño: matriz, C4, ADR-001, modelo de datos y API
 docs/revision_ia.md          Prompt y respuesta de la revisión con IA, con su verificación
+docs/informe_final.pdf       Informe final del proyecto integrador (PDF)
+docs/sustentacion.pdf        Diapositivas de la sustentación (PDF)
+informe_final.md             Informe final del proyecto integrador (fuente)
+.github/workflows/ci.yml     Pipeline: ruff y pytest en Python 3.10 y 3.13, y pip-audit
 revision_seguridad.md        Informe de revisión de código y seguridad
 bitacora_ia.md               Bitácora de uso de IA
 pyproject.toml               Metadatos, dependencias de desarrollo fijadas y configuración de ruff y pytest

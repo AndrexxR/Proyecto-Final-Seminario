@@ -7,6 +7,8 @@ Asistente usado: Claude. Al principio en modo chat; desde la revisión de seguri
 
 ## Entradas
 
+> **Aclaración sobre las entradas 7 a 15.** Esas entradas están escritas en primera persona, pero el trabajo que describen (revisión, correcciones, scripts de reproducción, pruebas, errores introducidos a propósito, datos sintéticos) lo ejecutó el agente Claude Code en la rama `claude/wonderful-cerf-d5iioc`, y cada paso quedó en un commit con `Co-Authored-By: Claude`. Mi papel fue pedir cada tarea y decidir su integración a `main`. Lo explico en el informe final, sección 7.
+
 ### Entrada 1
 
 - **Fecha:** 2026-11-13
@@ -142,12 +144,30 @@ Asistente usado: Claude. Al principio en modo chat; desde la revisión de seguri
 - **Verificación:** M4 no hizo fallar ninguna prueba (94 en verde con el código roto). Agregué la fila R5 con un ticket pendiente que ya tiene esa prioridad, y con el mismo error esa fila falla. Deshice cada cambio con `git restore` y comprobé que `git status` quedara limpio.
 - **Commit relacionado:** «Agrega el caso de prioridad repetida en ticket pendiente y anota los errores introducidos» (`bc4352b`)
 
+### Entrada 16
+
+- **Fecha:** 2026-11-27
+- **Prompt o sugerencia:** Le pedí al agente un pipeline de integración continua con ruff, pytest y pip-audit para el repositorio.
+- **Decisión:** Aceptada con cambios
+- **Por qué:** La primera versión (`56cd73a`) corría `pip-audit` sin argumentos en Python 3.10 y 3.13. En 3.10 falló por vulnerabilidades en `setuptools` y `filelock`, que no son dependencias del proyecto sino del servidor y del propio pip-audit.
+- **Verificación:** La detectó la primera ejecución del pipeline (pruebas y ruff en verde, auditoría en rojo solo en 3.10; el log mostraba los paquetes). El agente separó la auditoría en un trabajo con Python 3.13 y pip y setuptools actualizados (`4572201`).
+- **Commit relacionado:** `56cd73a`, `4572201`
+
+### Entrada 17
+
+- **Fecha:** 2026-11-27
+- **Prompt o sugerencia:** Le pedí al agente redactar el informe final con la plantilla y las diapositivas de la sustentación, usando solo lo que hay en el repositorio.
+- **Decisión:** Aceptada con cambios
+- **Por qué:** La fase de fundamentos y los documentos de propuesta, entrevista, diseño S4, despliegue y operación no están en el repositorio, así que el informe lo dice en lugar de inventarlos. Los casos de verificación de la sección 4 salen de commits reales.
+- **Verificación:** Cada enlace a un commit o archivo del informe apunta a algo que existe en `main`. Antes de sustentar tengo que releer el informe y ensayar las preguntas.
+- **Commit relacionado:** el commit que agrega `informe_final.md` y `docs/sustentacion.pdf`
+
 ## Resumen
 
 | Decisión | Cantidad |
 |---|---|
 | Aceptadas | 6 |
-| Aceptadas con cambios | 7 |
+| Aceptadas con cambios | 9 |
 | Rechazadas | 2 |
 
 ## Errores que atraparon las pruebas
